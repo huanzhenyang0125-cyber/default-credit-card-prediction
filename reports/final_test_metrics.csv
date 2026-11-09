@@ -1,0 +1,2 @@
+n,defaults,roc_auc,average_precision,brier
+6000,1327,0.774123,0.549650,0.135837

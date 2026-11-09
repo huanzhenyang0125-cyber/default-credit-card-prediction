@@ -1,0 +1,5 @@
+model,sex_code,n,defaults,flagged_rate,recall,false_positive_rate,tn,fp,fn,tp
+all_features,1,2385,607,0.137107,0.364086,0.059618,1672,106,386,221
+all_features,2,3615,720,0.093776,0.325000,0.036269,2790,105,486,234
+exclude_demographics,1,2385,607,0.135430,0.360791,0.058493,1674,104,388,219
+exclude_demographics,2,3615,720,0.097925,0.338889,0.037997,2785,110,476,244

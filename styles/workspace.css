@@ -1,0 +1,73 @@
+:root {
+  --glass-radius: 24px;
+  --glass-control-radius: 16px;
+  --glass-bg: rgba(255, 255, 255, .78);
+  --glass-blur: 20px;
+  --glass-border: rgba(255, 255, 255, .88);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 100, .10), inset 0 1px 0 rgba(255, 255, 255, .95);
+  --glass-motion: cubic-bezier(.34, 1.56, .64, 1);
+}
+.stApp { background: #ffffff; }
+section[data-testid="stSidebar"] {
+  background: var(--glass-bg);
+  border-right: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+}
+/* The sidebar remains a native, keyboard-accessible radio group. */
+.st-key-section label:has(input[type="radio"]) {
+  width: 100%;
+  padding: 11px 14px;
+  margin: 3px 0;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: #253d55;
+  transition: transform .24s var(--glass-motion), background .2s ease, box-shadow .2s ease;
+}
+.st-key-section label[data-selected="true"] {
+  background: rgba(255, 255, 255, .88);
+  border-color: rgba(255, 255, 255, .96);
+  box-shadow: 0 5px 18px rgba(26, 69, 89, .12), inset 0 1px 0 #fff;
+  color: #0e5666;
+  font-weight: 600;
+}
+.st-key-section label:hover { transform: translateX(4px); }
+.st-key-section label:active { transform: translateX(2px) scale(.98); }
+/* Keep native slider mechanics and change only the tactile visual feedback. */
+div[data-testid="stSlider"] [role="group"] > div > div[data-rac] {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #167D8D;
+  box-shadow: 0 3px 12px rgba(18, 83, 100, .30), inset 0 1px 2px rgba(255,255,255,.9);
+  cursor: grab;
+  transition: scale .24s var(--glass-motion), box-shadow .2s ease;
+}
+div[data-testid="stSlider"] [role="group"] > div > div[data-rac]:hover { scale: 1.13; }
+div[data-testid="stSlider"] [role="group"] > div > div[data-rac]:active { cursor: grabbing; scale: .94; }
+div[data-testid="stSlider"] [role="group"] > div > div[data-rac]:has(input:focus-visible) { outline: 3px solid #126577; outline-offset: 3px; }
+div[data-testid="stMetric"] {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  padding: 20px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  animation: glass-enter .38s var(--glass-motion) both;
+}
+div[data-testid="stMetric"] label, div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #111111; }
+button, section[data-testid="stSidebar"] label {
+  border-radius: var(--glass-control-radius);
+  transition: transform .22s var(--glass-motion), box-shadow .22s ease, background-color .18s ease;
+}
+button:hover { transform: scale(1.03); }
+button:active { transform: scale(.96); }
+section[data-testid="stSidebar"] label:hover { background: rgba(255,255,255,.72); }
+button:focus-visible, section[data-testid="stSidebar"] label:focus-within { outline: 2px solid #126577; outline-offset: 2px; }
+@keyframes glass-enter { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+@supports not (backdrop-filter: blur(20px)) { section[data-testid="stSidebar"], div[data-testid="stMetric"] { background: #fff; } }
+@media (prefers-reduced-motion: reduce) { div[data-testid="stMetric"] { animation: none; } button, .st-key-section label, div[data-testid="stSlider"] [role="group"] > div > div[data-rac] { transition: none; } button:hover, button:active, .st-key-section label:hover, .st-key-section label:active { transform: none; } div[data-testid="stSlider"] [role="group"] > div > div[data-rac]:hover, div[data-testid="stSlider"] [role="group"] > div > div[data-rac]:active { scale: 1; } }
+@media (max-width: 640px) { div[data-testid="stMetric"] { padding: 16px; } }

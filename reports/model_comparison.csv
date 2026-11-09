@@ -1,0 +1,4 @@
+model,roc_auc,average_precision,brier
+Logistic regression,0.725912,0.500144,0.145218
+Random forest,0.789860,0.554455,0.133710
+Calibrated forest (3-fold sigmoid),0.786664,0.554311,0.134276

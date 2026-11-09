@@ -1,0 +1,26 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Data archives (raw extracted workbook is tracked)
+*.zip
+data/raw/*.zip
+
+# Logs & temp files
+*.log
+dashboard.log
+.impeccable/
+.DS_Store
+Thumbs.db
+
+# Environment variables & secrets
+.env
+.env.*
+.streamlit/secrets.toml

@@ -1,0 +1,23 @@
+[theme]
+base = "light"
+primaryColor = "#167D8D"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#111111"
+borderColor = "#DCE3EE"
+baseRadius = "0.5rem"
+showSidebarBorder = true
+chartCategoricalColors = ["#167D8D", "#64748B", "#B7791F", "#47679B"]
+headingFontSizes = ["2.15rem", "1.65rem", "1.25rem", "1.1rem", "1rem", "1rem"]
+paddingTop = "2rem"
+
+[server]
+runOnSave = true
+
+[theme.sidebar]
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F5F5"
+textColor = "#111111"
+
+[client]
+toolbarMode = "viewer"

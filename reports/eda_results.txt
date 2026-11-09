@@ -1,0 +1,156 @@
+Rows: 30000; columns: 25
+Missing cells: 0; duplicate IDs: 0
+Default counts:
+default payment next month
+0    23364
+1     6636
+Overall default rate: 22.12%
+
+SEX distribution and default rate:
+     count  defaults  default_rate
+SEX                               
+1    11888      2873      0.241672
+2    18112      3763      0.207763
+
+EDUCATION distribution and default rate:
+           count  defaults  default_rate
+EDUCATION                               
+0             14         0      0.000000
+1          10585      2036      0.192348
+2          14030      3330      0.237349
+3           4917      1237      0.251576
+4            123         7      0.056911
+5            280        18      0.064286
+6             51         8      0.156863
+
+MARRIAGE distribution and default rate:
+          count  defaults  default_rate
+MARRIAGE                               
+0            54         5      0.092593
+1         13659      3206      0.234717
+2         15964      3341      0.209283
+3           323        84      0.260062
+
+PAY_0 distribution and default rate:
+       count  defaults  default_rate
+PAY_0                               
+-2      2759       365      0.132294
+-1      5686       954      0.167781
+ 0     14737      1888      0.128113
+ 1      3688      1252      0.339479
+ 2      2667      1844      0.691414
+ 3       322       244      0.757764
+ 4        76        52      0.684211
+ 5        26        13      0.500000
+ 6        11         6      0.545455
+ 7         9         7      0.777778
+ 8        19        11      0.578947
+
+PAY_2 distribution and default rate:
+       count  defaults  default_rate
+PAY_2                               
+-2      3782       691      0.182708
+-1      6050       966      0.159669
+ 0     15730      2503      0.159123
+ 1        28         5      0.178571
+ 2      3927      2184      0.556150
+ 3       326       201      0.616564
+ 4        99        50      0.505051
+ 5        25        15      0.600000
+ 6        12         9      0.750000
+ 7        20        12      0.600000
+ 8         1         0      0.000000
+
+PAY_3 distribution and default rate:
+       count  defaults  default_rate
+PAY_3                               
+-2      4085       757      0.185312
+-1      5938       926      0.155945
+ 0     15764      2751      0.174512
+ 1         4         1      0.250000
+ 2      3819      1969      0.515580
+ 3       240       138      0.575000
+ 4        76        44      0.578947
+ 5        21        12      0.571429
+ 6        23        14      0.608696
+ 7        27        22      0.814815
+ 8         3         2      0.666667
+
+PAY_4 distribution and default rate:
+       count  defaults  default_rate
+PAY_4                               
+-2      4348       837      0.192502
+-1      5687       904      0.158959
+ 0     16455      3016      0.183288
+ 1         2         1      0.500000
+ 2      3159      1653      0.523267
+ 3       180       110      0.611111
+ 4        69        46      0.666667
+ 5        35        18      0.514286
+ 6         5         2      0.400000
+ 7        58        48      0.827586
+ 8         2         1      0.500000
+
+PAY_5 distribution and default rate:
+       count  defaults  default_rate
+PAY_5                               
+-2      4546       895      0.196876
+-1      5539       897      0.161943
+ 0     16947      3195      0.188529
+ 2      2626      1423      0.541889
+ 3       178       113      0.634831
+ 4        84        51      0.607143
+ 5        17        10      0.588235
+ 6         4         3      0.750000
+ 7        58        48      0.827586
+ 8         1         1      1.000000
+
+PAY_6 distribution and default rate:
+       count  defaults  default_rate
+PAY_6                               
+-2      4895       981      0.200409
+-1      5740       975      0.169861
+ 0     16286      3069      0.188444
+ 2      2766      1401      0.506508
+ 3       184       118      0.641304
+ 4        49        31      0.632653
+ 5        13         7      0.538462
+ 6        19        14      0.736842
+ 7        46        38      0.826087
+ 8         2         2      1.000000
+
+Credit limit groups (NTD) and default rate:
+              count  defaults  default_rate
+credit_group                               
+<=50k          7676      2440      0.317874
+50k-100k       4822      1244      0.257984
+100k-200k      7880      1535      0.194797
+>200k          9622      1417      0.147267
+
+Numerical ranges and quantiles:
+                AGE       LIMIT_BAL      BILL_AMT1       PAY_AMT1
+count  30000.000000    30000.000000   30000.000000   30000.000000
+mean      35.485500   167484.322667   51223.330900    5663.580500
+std        9.217904   129747.661567   73635.860576   16563.280354
+min       21.000000    10000.000000 -165580.000000       0.000000
+25%       28.000000    50000.000000    3558.750000    1000.000000
+50%       34.000000   140000.000000   22381.500000    2100.000000
+75%       41.000000   240000.000000   67091.000000    5006.000000
+max       79.000000  1000000.000000  964511.000000  873552.000000
+
+Negative bill amounts by month:
+BILL_AMT1    590
+BILL_AMT2    669
+BILL_AMT3    655
+BILL_AMT4    675
+BILL_AMT5    655
+BILL_AMT6    688
+
+Pearson correlations (selected variables):
+                            LIMIT_BAL    AGE  PAY_0  BILL_AMT1  PAY_AMT1  default payment next month
+LIMIT_BAL                       1.000  0.145 -0.271      0.285     0.195                      -0.154
+AGE                             0.145  1.000 -0.039      0.056     0.026                       0.014
+PAY_0                          -0.271 -0.039  1.000      0.187    -0.079                       0.325
+BILL_AMT1                       0.285  0.056  0.187      1.000     0.140                      -0.020
+PAY_AMT1                        0.195  0.026 -0.079      0.140     1.000                      -0.073
+default payment next month     -0.154  0.014  0.325     -0.020    -0.073                       1.000

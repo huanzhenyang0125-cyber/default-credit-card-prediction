@@ -1,0 +1,37 @@
+model,threshold,fn_to_fp_cost,cost_units,flagged_fraction
+Logistic regression,0.1,2,3845,0.797
+Logistic regression,0.166667,2,3145,0.587333
+Logistic regression,0.25,2,2003,0.2645
+Logistic regression,0.5,2,2120,0.0775
+Random forest,0.1,2,3417,0.745167
+Random forest,0.166667,2,2282,0.449
+Random forest,0.25,2,1879,0.271833
+Random forest,0.5,2,1955,0.111
+Calibrated forest (3-fold sigmoid),0.1,2,3527,0.77
+Calibrated forest (3-fold sigmoid),0.166667,2,2045,0.3585
+Calibrated forest (3-fold sigmoid),0.25,2,1793,0.2325
+Calibrated forest (3-fold sigmoid),0.5,2,1925,0.119
+Logistic regression,0.1,5,4235,0.797
+Logistic regression,0.166667,5,4093,0.587333
+Logistic regression,0.25,5,3746,0.2645
+Logistic regression,0.5,5,5102,0.0775
+Random forest,0.1,5,3690,0.745167
+Random forest,0.166667,5,3197,0.449
+Random forest,0.25,5,3454,0.271833
+Random forest,0.5,5,4571,0.111
+Calibrated forest (3-fold sigmoid),0.1,5,3761,0.77
+Calibrated forest (3-fold sigmoid),0.166667,5,3266,0.3585
+Calibrated forest (3-fold sigmoid),0.25,5,3518,0.2325
+Calibrated forest (3-fold sigmoid),0.5,5,4463,0.119
+Logistic regression,0.1,10,4885,0.797
+Logistic regression,0.166667,10,5673,0.587333
+Logistic regression,0.25,10,6651,0.2645
+Logistic regression,0.5,10,10072,0.0775
+Random forest,0.1,10,4145,0.745167
+Random forest,0.166667,10,4722,0.449
+Random forest,0.25,10,6079,0.271833
+Random forest,0.5,10,8931,0.111
+Calibrated forest (3-fold sigmoid),0.1,10,4151,0.77
+Calibrated forest (3-fold sigmoid),0.166667,10,5301,0.3585
+Calibrated forest (3-fold sigmoid),0.25,10,6393,0.2325
+Calibrated forest (3-fold sigmoid),0.5,10,8693,0.119

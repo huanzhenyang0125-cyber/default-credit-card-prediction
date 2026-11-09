@@ -1,0 +1,3 @@
+capacity_fraction,review_slots,captured_defaults,review_precision,default_recall,random_selection_expected_defaults
+0.100000,600,415,0.691667,0.312735,132.700000
+0.200000,1200,678,0.565000,0.510927,265.400000

@@ -1,0 +1,3 @@
+threshold,tn,fp,fn,tp,precision,recall,flagged_fraction,hypothetical_cost_fp1_fn5
+0.500000,4436,237,866,461,0.660458,0.347400,0.116333,4567
+0.166667,2944,1729,345,982,0.362228,0.740015,0.451833,3454

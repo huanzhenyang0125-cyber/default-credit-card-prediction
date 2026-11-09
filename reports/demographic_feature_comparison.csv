@@ -1,0 +1,3 @@
+model,roc_auc,average_precision,brier
+all_features,0.789860,0.554455,0.133710
+exclude_demographics,0.786271,0.556662,0.133739

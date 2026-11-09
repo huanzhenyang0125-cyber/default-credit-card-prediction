@@ -1,0 +1,4 @@
+,auc_lower_95,auc_upper_95
+Logistic regression,0.707146,0.742168
+Random forest,0.773939,0.803708
+Calibrated forest (3-fold sigmoid),0.770324,0.800295
