@@ -1,150 +1,254 @@
-# Credit Risk Decision Lab 💳
+# Credit Risk Decision Lab: Predicting Credit Card Default and Resource-Constrained Risk Operations
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.4+-F7931E.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.32+-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9+-F7931E.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.67+-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Dataset: UCI ML Repo](https://img.shields.io/badge/Dataset-UCI%20Credit%20Card%20(350)-blue.svg)](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-[![Tests](https://img.shields.io/badge/Tests-Passing%20(15%2F15)-brightgreen.svg)](tests/)
+[![Tests: Passing](https://img.shields.io/badge/Tests-Passing%20(15%2F15)-brightgreen.svg)](tests/)
 
-> **A reproducible credit-risk machine learning framework connecting default probability estimation with resource-constrained account review and operational decisioning.**
-
----
-
-## Table of Contents
-
-1. [Executive Summary & Background](#executive-summary--background)
-2. [Research Question & Operational Framing](#research-question--operational-framing)
-3. [Dataset & Feature Schema](#dataset--feature-schema)
-4. [Exploratory Data Analysis (EDA)](#exploratory-data-analysis-eda)
-5. [Data Preprocessing & Fairness Compliance](#data-preprocessing--fairness-compliance)
-6. [Machine Learning Models & Validation](#machine-learning-models--validation)
-7. [Held-Out Test Set Performance](#held-out-test-set-performance)
-8. [Capacity-Constrained Account Review](#capacity-constrained-account-review)
-9. [Interactive Research Dashboard](#interactive-research-dashboard)
-10. [Repository Structure](#repository-structure)
-11. [Quickstart & Reproducibility](#quickstart--reproducibility)
-12. [Scientific Disclosures & Limitations](#scientific-disclosures--limitations)
-13. [References & Attribution](#references--attribution)
+An end-to-end machine learning research framework and interactive decision system connecting credit card default prediction with capacity-constrained loan review and operational underwriting workflows.
 
 ---
 
-## Executive Summary & Background
+## Contents
 
-In 2005–2006, card-issuing banks in Taiwan experienced a sharp expansion in cash-card and consumer credit lines followed by an unprecedented default crisis. As consumer delinquency surged, banks were confronted with two fundamental operational challenges:
-
-1. **Risk Discrimination vs. Calibration**: A model that ranks credit applicants accurately (high ROC-AUC) is not necessarily calibrated for actual loss prediction (accurate Expected Loss $EL = PD \times LGD \times EAD$).
-2. **Operational Queue Constraints**: In realistic risk operations, human review desks and intervention teams operate under strictly bounded daily capacity (e.g., manual audit queues of 10%–20% of accounts), meaning static classification cutoffs (such as threshold $0.5$) fail to translate to actionable operations.
-
-**Credit Risk Decision Lab** addresses these challenges by developing a rigorous, audit-ready risk scoring pipeline using the benchmark UCI Credit Card Default dataset (30,000 accounts). It evaluates model discrimination, probability calibration, ethical feature exclusion, and operational queue yields.
+1. [Introduction and Background](#1-introduction-and-background)
+2. [Exploratory Data Analysis](#2-exploratory-data-analysis)
+   - [Dataset Overview](#dataset-overview)
+   - [Feature Dictionary and Schema](#feature-dictionary-and-schema)
+   - [Class Imbalance and Baseline Distribution](#class-imbalance-and-baseline-distribution)
+   - [Payment Delinquency and Credit Line Signals](#payment-delinquency-and-credit-line-signals)
+3. [Data Preprocessing and Compliance](#3-data-preprocessing-and-compliance)
+   - [Leakage-Free Pipeline Architecture](#leakage-free-pipeline-architecture)
+   - [Stratified Partitioning Protocol](#stratified-partitioning-protocol)
+   - [Fair Lending and Demographic Attribute Exclusion](#fair-lending-and-demographic-attribute-exclusion)
+4. [Supervised Machine Learning Models](#4-supervised-machine-learning-models)
+   - [Evaluation Metrics and Mathematical Objectives](#evaluation-metrics-and-mathematical-objectives)
+   - [Logistic Regression Baseline](#logistic-regression-baseline)
+   - [Random Forest Classifier](#random-forest-classifier)
+   - [Probability Calibration and Brier Score Analysis](#probability-calibration-and-brier-score-analysis)
+   - [Resampling Stability and Bootstrap Uncertainty](#resampling-stability-and-bootstrap-uncertainty)
+5. [Operational Decision Framework and Capacity Review](#5-operational-decision-framework-and-capacity-review)
+   - [The Queue-Constrained Underwriting Problem](#the-queue-constrained-underwriting-problem)
+   - [Cumulative Default Coverage and Queue Lift](#cumulative-default-coverage-and-queue-lift)
+   - [Marginal Review Yield Analysis](#marginal-review-yield-analysis)
+   - [Cost-Sensitive Thresholds and Expected Loss](#cost-sensitive-thresholds-and-expected-loss)
+6. [Held-Out Evaluation Results](#6-held-out-evaluation-results)
+7. [Interactive Research Workspace](#7-interactive-research-workspace)
+8. [Repository Architecture](#8-repository-architecture)
+9. [Quickstart and Reproduction Guide](#9-quickstart-and-reproduction-guide)
+10. [Scientific Disclosures and Methodological Bounds](#10-scientific-disclosures-and-methodological-bounds)
+11. [References and Attribution](#11-references-and-attribution)
 
 ---
 
-## Research Question & Operational Framing
+## 1. Introduction and Background
 
-```
-                                  Operational Review Funnel
-                                  
-   All Accounts (30,000) ────► Preprocessing Pipeline ────► Probability Scoring (Random Forest)
-                               (Train-only Standardizer)           │
-                                                                   ▼
-                         ┌────────────────────────────── Ranked Risk Queue ──────────────────────────────┐
-                         │                                                                              │
-                         ▼                                                                              ▼
-               Top 10% Highest Risk (600 Slots)                               Top 20% Highest Risk (1,200 Slots)
-               Captures 415 Historical Defaults (31.27%)                      Captures 678 Historical Defaults (51.09%)
-               [3.13x Lift over Random Audit]                                 [2.55x Lift over Random Audit]
-```
+During 2005 and 2006, the consumer credit market in Taiwan experienced a structural expansion in unsecured revolving credit and cash cards. In aggressive efforts to capture retail market share, card-issuing institutions significantly lowered credit standards, granting multi-card credit limits to applicants regardless of verifiable debt servicing capability. Consequently, consumer debt accumulated beyond sustainable repayment thresholds, culminating in widespread consumer delinquencies and severe bank credit losses.
 
-* **Core Question**: How effectively can calibrated machine learning default probabilities prioritize account interventions when manual underwriting/investigation resources are limited?
-* **Methodological Scope**: Rather than treating default risk as an abstract academic classification benchmark, this repository evaluates models through **discrimination (ROC-AUC)**, **calibration (Brier Score)**, **decision thresholds**, and **marginal capacity yield curves**.
+In risk operations, credit default modeling encounters two interrelated challenges that abstract academic classification benchmarks frequently overlook:
+
+1. **Discrimination versus Probability Calibration**: Maximizing a threshold-independent ranking metric like Area Under the ROC Curve (ROC-AUC) does not ensure that the model output reflects a reliable posterior probability. In modern credit risk frameworks (such as Basel II/III Internal Ratings-Based approaches), downstream loss estimates directly rely on calibrated Probability of Default ($PD$) values:
+   $$\text{Expected Loss } (EL) = PD \times LGD \times EAD$$
+   where $LGD$ denotes Loss Given Default and $EAD$ denotes Exposure at Default.
+2. **Operational Queue Capacity**: A retail credit operations desk cannot audit every suspicious transaction or manually re-underwrite every delinquent borrower. Human verification units operate under rigid daily queue budgets (e.g., resources to manually inspect at most 10% to 20% of active accounts). A binary classification threshold like $p \ge 0.5$ fails in production when it flags either too few cases or overwhelms operational staff with false alarms.
+
+**Credit Risk Decision Lab** addresses this operational reality by formulating credit risk scoring as a constrained resource allocation problem. Rather than treating accuracy as an end goal, this project evaluates how calibrated risk scores prioritize accounts under operational review constraints.
 
 ---
 
-## Dataset & Feature Schema
+## 2. Exploratory Data Analysis
 
-The dataset comes from the **UCI Machine Learning Repository** ([Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients)), containing 30,000 customer records from April to September 2005 in Taiwan.
+### Dataset Overview
 
-### Feature Dictionary
+The study utilizes the benchmark **Default of Credit Card Clients** dataset from the UCI Machine Learning Repository, compiled by I-Cheng Yeh (Chung Hua University). The dataset consists of **30,000 observations**, each representing an individual account holder in Taiwan from April 2005 to September 2005, with payment outcome tracked for October 2005.
 
-| Attribute | Type | Description | Operational Role |
+### Feature Dictionary and Schema
+
+The feature vector contains 24 raw attributes organized into customer background, repayment tracking, billing records, and historical payment transactions:
+
+| Feature Name | Variable Type | Measurement Domain | Role in Modeling Pipeline |
 |:---|:---|:---|:---|
-| `LIMIT_BAL` | Numeric | Credit line amount in NT dollars (individual + supplementary) | Core Exposure |
-| `SEX` | Categorical | Gender (1=Male, 2=Female) | **Excluded for Fairness** |
-| `EDUCATION` | Categorical | Education level (1=Grad school, 2=University, 3=High school, 4=Others) | **Excluded for Fairness** |
-| `MARRIAGE` | Categorical | Marital status (1=Married, 2=Single, 3=Others) | **Excluded for Fairness** |
-| `AGE` | Numeric | Age in years | Demographic Control |
-| `PAY_0` – `PAY_6` | Ordinal | Repayment status from September 2005 (`PAY_0`) back to April 2005 (`PAY_6`). Scale: `-1`=Pay duly, `1`–`8`=Payment delay in months, `9`=Delay ≥9 months | **Primary Signal** |
-| `BILL_AMT1` – `BILL_AMT6` | Numeric | Statement bill amount (NT dollars) from September (`BILL_AMT1`) to April 2005 (`BILL_AMT6`) | Historical Balance |
-| `PAY_AMT1` – `PAY_AMT6` | Numeric | Amount of previous payment (NT dollars) from September (`PAY_AMT1`) to April 2005 (`PAY_AMT6`) | Repayment Velocity |
-| `default payment next month` | Binary | Target indicator: `1` = Defaulted in October 2005; `0` = Paid duly | Ground Truth Target |
+| `LIMIT_BAL` | Numeric | Total approved credit limit in New Taiwan Dollars (NTD) | Core Exposure Measure |
+| `SEX` | Categorical | Gender indicator (`1` = Male, `2` = Female) | **Excluded for Fair Lending Compliance** |
+| `EDUCATION` | Categorical | Educational attainment (`1` = Graduate School, `2` = University, `3` = High School, `4` = Others, `5`/`6` = Unknown) | **Excluded for Fair Lending Compliance** |
+| `MARRIAGE` | Categorical | Marital status (`1` = Married, `2` = Single, `3` = Others) | **Excluded for Fair Lending Compliance** |
+| `AGE` | Numeric | Age in completed years | Demographic Control |
+| `PAY_0` | Ordinal | Repayment delay status in September 2005 | Primary Predictive Risk Signal |
+| `PAY_2` | Ordinal | Repayment delay status in August 2005 | Historical Delinquency Signal |
+| `PAY_3` | Ordinal | Repayment delay status in July 2005 | Historical Delinquency Signal |
+| `PAY_4` | Ordinal | Repayment delay status in June 2005 | Historical Delinquency Signal |
+| `PAY_5` | Ordinal | Repayment delay status in May 2005 | Historical Delinquency Signal |
+| `PAY_6` | Ordinal | Repayment delay status in April 2005 | Historical Delinquency Signal |
+| `BILL_AMT1` | Numeric | Monthly statement balance in September 2005 (NTD) | Balance Exposure |
+| `BILL_AMT2` | Numeric | Monthly statement balance in August 2005 (NTD) | Balance Exposure |
+| `BILL_AMT3` | Numeric | Monthly statement balance in July 2005 (NTD) | Balance Exposure |
+| `BILL_AMT4` | Numeric | Monthly statement balance in June 2005 (NTD) | Balance Exposure |
+| `BILL_AMT5` | Numeric | Monthly statement balance in May 2005 (NTD) | Balance Exposure |
+| `BILL_AMT6` | Numeric | Monthly statement balance in April 2005 (NTD) | Balance Exposure |
+| `PAY_AMT1` | Numeric | Repayment amount remitted in September 2005 (NTD) | Repayment Velocity |
+| `PAY_AMT2` | Numeric | Repayment amount remitted in August 2005 (NTD) | Repayment Velocity |
+| `PAY_AMT3` | Numeric | Repayment amount remitted in July 2005 (NTD) | Repayment Velocity |
+| `PAY_AMT4` | Numeric | Repayment amount remitted in June 2005 (NTD) | Repayment Velocity |
+| `PAY_AMT5` | Numeric | Repayment amount remitted in May 2005 (NTD) | Repayment Velocity |
+| `PAY_AMT6` | Numeric | Repayment amount remitted in April 2005 (NTD) | Repayment Velocity |
+| `default payment next month` | Binary Target | Ground truth indicator: `1` = Default in October 2005, `0` = Timely Payment | Supervised Ground Truth Target |
 
-*Note: Undocumented codes `0` and `-2` present in the raw data are preserved as observed historical records without unverified heuristic modifications.*
+*Data Hygiene Note: Repayment codes `-1` denote payment duly, while `1` through `8` denote consecutive months of overdue payment. Codes `0` and `-2` represent revolving credit usage and zero balance respectively; they are preserved as valid historical observations.*
+
+### Class Imbalance and Baseline Distribution
+
+![Exploratory Data Analysis Overview](figures/eda_overview.png)
+
+The historical distribution reveals marked skewness:
+* **Target Imbalance**: 23,364 accounts paid duly (77.88%), whereas 6,636 accounts defaulted (**22.12% base default rate**). A naive majority-class classifier achieves 77.88% accuracy while failing to capture any credit defaults.
+* **Credit Line Dispersion**: Approved limits span from NT$10,000 to NT$1,000,000, with a median of NT$140,000 and mean of NT$167,484. Default rate correlates inversely with credit line size: accounts with $\text{LIMIT\_BAL} \le \text{NT}\$50,000$ exhibit a **31.79%** default rate, compared to **14.73%** for lines exceeding NT$200,000.
+* **Account Age**: Customer ages range from 21 to 79 years, with a median of 34 and mean of 35.49 years.
+
+### Payment Delinquency and Credit Line Signals
+
+The most powerful predictor is `PAY_0` (September payment status):
+* Accounts classified as paid duly (`-1`) or revolving balance (`0`) exhibit default rates below **15%**.
+* Accounts with a 1-month delay (`PAY_0 = 1`, 3,688 accounts) exhibit a **33.95%** default rate.
+* Accounts with a 2-month delay (`PAY_0 = 2`, 2,667 accounts) escalate to a **69.14%** default rate.
 
 ---
 
-## Exploratory Data Analysis (EDA)
+## 3. Data Preprocessing and Compliance
 
-![EDA Overview](figures/eda_overview.png)
+### Leakage-Free Pipeline Architecture
 
-Key observations from the exploratory phase:
-* **Class Imbalance**: The dataset contains 23,364 non-default accounts (77.88%) and 6,636 default accounts (**22.12% default rate**).
-* **Payment Delinquency Impact**: `PAY_0` (September repayment status) demonstrates the steepest gradient: accounts with status `0` or `-1` have default rates $< 15\%$, while accounts with status `1` exhibit a **33.95%** default rate, and status `2` (two months overdue) spikes to **69.14%**.
-* **Credit Limit Inverse Relationship**: Lower credit limits ($\le \text{NT}\$50,000$) show an observed default rate of **31.79%**, whereas credit lines $> \text{NT}\$200,000$ exhibit a **14.73%** default rate.
+Data leakage in published machine learning benchmarks frequently occurs when preprocessing transformers (such as scalers or target encoders) are fitted across the entire dataset prior to splitting. In this repository:
+1. Feature standardizers (`StandardScaler`) are computed strictly using the 18,000 training observations.
+2. The empirical mean $\mu_{\text{train}}$ and variance $\sigma_{\text{train}}^2$ are fixed and applied out-of-sample to validation and test records without recalculation.
+
+### Stratified Partitioning Protocol
+
+The dataset is partitioned deterministically with stratification on the target variable:
+* **Training Set**: 18,000 records (60% split, 3,982 defaults, 22.12% default rate)
+* **Validation Set**: 6,000 records (20% split, 1,327 defaults, 22.12% default rate)
+* **Held-Out Test Set**: 6,000 records (20% split, 1,327 defaults, 22.12% default rate)
+
+The customer assignment mapping is persistently stored in `reports/data_split.csv` to ensure exact reproducibility across runtime environments.
+
+### Fair Lending and Demographic Attribute Exclusion
+
+Under regulatory fair lending principles (such as the US Equal Credit Opportunity Act and equivalent international guidance), algorithms should avoid relying on protected personal characteristics.
+
+We conducted a comparative validation experiment:
+* Model trained with all 23 predictors (including `SEX`, `EDUCATION`, and `MARRIAGE`): **Validation ROC-AUC = 0.7899**
+* Model trained strictly with 20 non-demographic predictors: **Validation ROC-AUC = 0.7863**
+
+Removing demographic attributes causes a negligible reduction in predictive ranking power ($\Delta \text{AUC} = 0.0036$) while preventing disparate treatment on protected grounds. Consequently, the final model strictly restricts its input vector to the 20 financial exposure, bill, and delinquency attributes.
 
 ---
 
-## Data Preprocessing & Fairness Compliance
+## 4. Supervised Machine Learning Models
 
-1. **Stratified Split**:
-   - Total sample: 30,000 records.
-   - **Training Set (60%)**: 18,000 records (3,982 defaults, 22.12%).
-   - **Validation Set (20%)**: 6,000 records (1,327 defaults, 22.12%).
-   - **Held-Out Test Set (20%)**: 6,000 records (1,327 defaults, 22.12%).
-2. **Leakage-Free Standard Scaling**:
-   - `StandardScaler` fitted strictly on the 18,000 training observations and applied out-of-fold to validation and test records.
-3. **Fairness & Regulatory Feature Selection**:
-   - Consistent with fair-lending regulatory standards (such as the Equal Credit Opportunity Act principles), protected demographic attributes (`SEX`, `EDUCATION`, and `MARRIAGE`) were **deliberately excluded** from the final 20-feature modeling feature vector.
-   - Validation experiments confirmed that removing these features preserved predictive discrimination (AUC 0.7899 with demographics vs. 0.7863 without) while preventing disparate demographic scoring.
+### Evaluation Metrics and Mathematical Objectives
 
----
+Models are evaluated across complementary dimensions:
 
-## Machine Learning Models & Validation
+1. **ROC-AUC (Discrimination)**: Area under the Receiver Operating Characteristic curve measures ranking quality independent of classification threshold:
+   $$\text{AUC} = \int_{0}^{1} \text{TPR}(\text{FPR}^{-1}(t)) \, dt$$
+2. **Average Precision (PR-AUC)**: Summarizes precision across all recall cutoffs, sensitive to positive-class discovery under class imbalance:
+   $$\text{AP} = \sum_{k} (R_k - R_{k-1}) P_k$$
+3. **Brier Score (Calibration Reliability)**: Mean squared error between predicted probabilities $\hat{p}_i$ and observed ground truth $y_i \in \{0, 1\}$:
+   $$\text{BS} = \frac{1}{N} \sum_{i=1}^{N} (\hat{p}_i - y_i)^2$$
+   A lower Brier score represents better calibrated probabilities.
 
-We evaluated candidate pipelines across cross-validation and bootstrap resampling:
+### Candidate Model Architectures
 
-1. **Baseline Model**: L2-regularized Logistic Regression ($C=1.0$) with training-only scaling.
-2. **Challenger Model**: Random Forest (100 estimators, minimum leaf size 25, seed 42).
-3. **Calibrated Model**: 3-fold Out-of-Fold Sigmoid Calibrated Random Forest.
+Three candidate configurations were fitted on the 18,000 training records:
+
+1. **Baseline Logistic Regression**:
+   - $L_2$-regularized penalized generalized linear model ($C=1.0$, `lbfgs` solver, max iterations 1000).
+   - Produces monotonic log-odds estimates over standardized continuous features.
+2. **Random Forest Classifier**:
+   - Ensemble of 100 decorrelated decision trees (`n_estimators=100`).
+   - Structural regularization: `min_samples_leaf=25` to constrain terminal leaf variance and prevent overfitting.
+   - Non-linear feature interactions across multi-month payment histories.
+3. **Sigmoid-Calibrated Random Forest**:
+   - 3-fold internal stratified out-of-fold Platt scaling (fitting a logistic sigmoid transformation mapping raw forest votes to calibrated empirical frequencies).
 
 ![Model Discrimination and Calibration](figures/report_discrimination.png)
 
 ### Validation Diagnostics
 
-| Model Pipeline | Val ROC-AUC | Val Average Precision | Val Brier Score | Notes |
+| Model Pipeline | Val ROC-AUC | Val Average Precision | Val Brier Score | Algorithmic Assessment |
 |:---|:---:|:---:|:---:|:---|
-| **Logistic Regression (Baseline)** | 0.7259 | 0.5001 | 0.1452 | Fast linear baseline |
-| **Random Forest (Final Chosen)** | **0.7899** | **0.5642** | **0.1337** | Superior ranking & discrimination |
-| **Calibrated Random Forest** | 0.7867 | 0.5598 | 0.1343 | Comparable Brier score |
+| **Logistic Regression (Baseline)** | 0.7259 | 0.5001 | 0.1452 | Fast linear benchmark; lower recall on severe delinquencies |
+| **Random Forest (Final Chosen)** | **0.7899** | **0.5642** | **0.1337** | Strongest discrimination and lowest probability error |
+| **Calibrated Random Forest** | 0.7867 | 0.5598 | 0.1343 | Sigmoid calibration yielded no empirical improvement over raw forest |
 
-* **Internal Stability**: 3-fold cross-validation on the training set demonstrated tight AUC bounds ($0.7789$ – $0.7875$), verifying robustness against data partitioning noise.
-* **Bootstrap Confidence Intervals**: 1,000 validation bootstrap draws for the Random Forest produced a 95% CI of $[0.7758, 0.8037]$ for ROC-AUC and $[0.1283, 0.1392]$ for Brier score.
+### Resampling Stability and Bootstrap Uncertainty
+
+* **3-Fold Cross-Validation on Training Set**: AUC scores across internal folds yielded values of **0.7875**, **0.7802**, and **0.7790**, demonstrating stable performance across distinct partitions.
+* **Paired Validation Bootstrap (1,000 Iterations)**: Resampling validation records with replacement generated empirical 95% confidence intervals:
+  - Random Forest ROC-AUC: $[0.7739, 0.8037]$
+  - Random Forest Brier Score: $[0.1283, 0.1392]$
 
 ---
 
-## Held-Out Test Set Performance
+## 5. Operational Decision Framework and Capacity Review
 
-The pre-registered final 20-feature Random Forest model was scored on the uncompromised 6,000 held-out test records:
+### The Queue-Constrained Underwriting Problem
 
-| Test Metric | Measured Value | Benchmark Interpretation |
+In operational practice, default prediction is used to allocate fixed investigator hours. An audit desk capable of reviewing $K$ accounts per period sorts all customers by model-predicted risk $\hat{p}_i$ descending and audits the top $K$ accounts.
+
+![Capacity Review Curve](figures/report_capacity.png)
+
+### Cumulative Default Coverage and Queue Lift
+
+Evaluating the test partition of 6,000 accounts (containing 1,327 actual defaults):
+
+| Operational Review Capacity | Review Slots Allocated | Observed Defaults Captured | Default Coverage (Recall) | Queue Concentration Lift |
+|:---:|:---:|:---:|:---:|:---:|
+| **Top 5%** | 300 | 224 | 16.88% | **3.38x vs. Random** |
+| **Top 10%** | **600** | **415** | **31.27%** | **3.13x vs. Random** |
+| **Top 15%** | 900 | 552 | 41.60% | **2.77x vs. Random** |
+| **Top 20%** | **1,200** | **678** | **51.09%** | **2.55x vs. Random** |
+| **Top 30%** | 1,800 | 839 | 63.23% | **2.11x vs. Random** |
+
+*Operational Takeaway*: Under random auditing, inspecting 600 accounts yields an expectation of $600 \times 0.2212 = 132.7$ defaults. Auditing the **top 10% model-ranked queue** uncovers **415 defaults** (a 3.13x lift). Expanding audit resources to **20%** captures **51.09%** of all defaulting borrowers.
+
+### Marginal Review Yield Analysis
+
+As capacity expands, marginal returns diminish:
+* First 300 accounts (0% to 5%): **224 defaults captured** (74.7% precision)
+* Next 300 accounts (5% to 10%): **191 defaults captured** (63.7% precision)
+* Next 300 accounts (10% to 15%): **137 defaults captured** (45.7% precision)
+* Next 300 accounts (15% to 20%): **126 defaults captured** (42.0% precision)
+
+Beyond the 20% tier, each additional default detected requires reviewing substantially more non-default accounts.
+
+### Cost-Sensitive Thresholds and Expected Loss
+
+When fixed queue constraints do not apply and decisions rely on asymmetric loss matrices:
+$$\text{Cost} = c_{\text{FP}} \cdot \text{FP} + c_{\text{FN}} \cdot \text{FN}$$
+
+Assuming a conservative credit ratio where missing a defaulting borrower is 5 times more costly than manual investigation friction ($c_{\text{FN}} = 5, c_{\text{FP}} = 1$):
+* Standard threshold ($p = 0.50$): 461 TP, 866 FN, 237 FP $\rightarrow$ Cost Units = **4,567**
+* Cost-optimal threshold ($p \approx 0.1667$): 982 TP, 345 FN, 1,729 FP $\rightarrow$ Cost Units = **3,454**
+
+Lowering the operating threshold from $0.50$ to $0.1667$ reduces aggregate error cost by **24.4%** by prioritizing default capture.
+
+---
+
+## 6. Held-Out Evaluation Results
+
+The final 20-feature Random Forest model was scored on the held-out test split (6,000 accounts, completely isolated during feature selection and model choice):
+
+| Test Metric | Empirical Value | Context and Interpretation |
 |:---|:---:|:---|
-| **ROC-AUC** | **0.7741** | Strong ranking discrimination across operational thresholds |
-| **Average Precision (PR-AUC)** | **0.5497** | High positive-class precision relative to 22.12% base rate |
+| **ROC-AUC** | **0.7741** | Robust ranking discrimination out-of-sample |
+| **Average Precision** | **0.5497** | 2.49x baseline positive class rate (22.12%) |
 | **Brier Score** | **0.1358** | Low mean squared probability error |
-| **Accuracy (at threshold 0.50)** | **81.62%** | High baseline correctness |
-| **Test Sample Size** | 6,000 records | 1,327 actual defaults / 4,673 non-defaults |
+| **Accuracy (at threshold 0.50)** | **81.62%** | High baseline accuracy |
+| **Test Sample Size** | 6,000 records | 1,327 ground truth defaults, 4,673 non-defaults |
 
-### Test Confusion Matrix (Fixed Threshold = 0.50)
+### Test Confusion Matrix (Threshold = 0.50)
 
 | | Predicted Non-Default (`0`) | Predicted Default (`1`) | Total Observed |
 |:---|:---:|:---:|:---:|
@@ -154,137 +258,123 @@ The pre-registered final 20-feature Random Forest model was scored on the uncomp
 
 ---
 
-## Capacity-Constrained Account Review
+## 7. Interactive Research Workspace
 
-In real credit operations, banks do not take actions using arbitrary cutoffs like $p=0.5$. Instead, operations teams have a fixed budget of manual investigation hours. We evaluated review capacity queues:
-
-![Capacity Analysis Curve](figures/report_capacity.png)
-
-### Review Capacity Benchmarks (Test Set: 6,000 Accounts)
-
-| Review Capacity | Available Slots | Historical Defaults Captured | Share of All Defaults | Lift vs. Random |
-|:---:|:---:|:---:|:---:|:---:|
-| **Top 5%** | 300 | 224 | 16.88% | **3.38x** |
-| **Top 10%** | **600** | **415** | **31.27%** | **3.13x** |
-| **Top 15%** | 900 | 552 | 41.60% | **2.77x** |
-| **Top 20%** | **1,200** | **678** | **51.09%** | **2.55x** |
-
-* **Operational Insight**: By auditing just **10% of accounts**, risk teams capture nearly a third (**31.27%**) of all defaults. Auditing **20%** captures over half (**51.09%**), representing more than double the discovery rate of random audit policies.
-
----
-
-## Interactive Research Dashboard
-
-The project features a **Streamlit** research workspace with a custom clean visual design.
+The repository provides a complete web workspace developed in **Streamlit** for research exploration and real-time inference.
 
 ![Dashboard Preview](figures/dashboard_portfolio_preview.png)
 
-### Dashboard Features
+### Key Workspace Views
 
-1. **Data Explorer**: Distribution plots, delinquency status distributions, and data quality checks.
-2. **Model Validation**: Side-by-side discrimination curves, Brier reliability curves, and feature importance rankings.
-3. **Decision Lab & Capacity Analysis**: Interactive slider to inspect 1%–100% review queues and compute marginal yield per 300-account tier.
-4. **Expected Loss & Cost Sensitivity**: Custom false-positive/false-negative cost ratios and assumed LGD/EAD parameter scenarios.
-5. **Interactive Risk Simulator**: Submit synthetic applicant parameters to compute real-time default probability via the exact in-memory pipeline.
+1. **Executive Overview**: High-level KPI scorecards, test ROC-AUC, Brier score, and cumulative capacity curve.
+2. **Data Explorer**: Interactive demographic histograms, delinquency heatmaps, and data hygiene audits.
+3. **Model Validation**: Interactive ROC and Precision-Recall curves with dynamic threshold sliders, calibration plots, and training-fold stability tables.
+4. **Decision Lab**: Real-time review capacity optimizer, marginal yield tier analysis, and cost-ratio sensitivity controls.
+5. **Interactive Risk Simulator**: Form allowing underwriters to supply synthetic borrower financial parameters to compute real-time default probabilities and assign risk bands.
 
 ---
 
-## Repository Structure
+## 8. Repository Architecture
 
 ```
-Credit-Risk-Decision-Lab/
-├── app.py                         # Streamlit interactive research dashboard
-├── risk_model.py                  # Core modeling pipeline & feature schema definitions
-├── read_data.py                   # Data ingestion and verification script
-├── eda.py                         # Exploratory data analysis & figure generator
-├── baseline.py                    # Logistic regression baseline validation
-├── model_validation.py            # Random forest & calibration experiments
-├── robustness.py                  # Stability, bootstrap CI & group diagnostic suite
-├── final_evaluation.py            # Protocol-controlled held-out test scoring
-├── capacity_analysis.py           # Extended 1%-100% capacity curve calculations
+default-credit-card-prediction/
+├── app.py                             # Streamlit interactive research workspace
+├── risk_model.py                      # Reconstructible 20-feature model pipeline
+├── read_data.py                       # Data ingestion and verification script
+├── eda.py                             # Exploratory data analysis and figure script
+├── baseline.py                        # Baseline logistic regression benchmark
+├── model_validation.py                # Validation comparison and calibration
+├── robustness.py                      # 3-fold stability, bootstrap and group tests
+├── final_evaluation.py                # Protocol-controlled held-out test scoring
+├── capacity_analysis.py               # 1%-100% capacity curve generator
 │
 ├── data/
-│   └── raw/                       # Official UCI Excel workbook
+│   └── raw/                           # Original UCI Excel workbook
 │
-├── figures/                       # High-resolution generated charts
+├── figures/                           # Generated charts and diagrams
 │   ├── eda_overview.png
 │   ├── report_discrimination.png
 │   ├── report_capacity.png
 │   ├── calibration.png
 │   └── dashboard_portfolio_preview.png
 │
-├── reports/                       # Formal research documentation
-│   ├── credit_risk_research_report.md
+├── reports/                           # Research deliverables and logs
 │   ├── Credit_Risk_Research_Report.pdf
+│   ├── credit_risk_research_report.md
 │   ├── final_evaluation_summary.md
-│   ├── repository_audit.md        # Leakage, schema & reproducibility audit
-│   └── cv_project_entry.md        # Verified résumé & interview talking points
+│   ├── repository_audit.md            # Leakage, schema, and reproducibility audit
+│   └── cv_project_entry.md            # Resume and interview talking points
 │
-├── styles/                        # Custom CSS workspace styling
-├── tests/                         # Automated test suite
-│   ├── test_model_reproducibility.py  # Verifies 6,000 predictions match to 1e-10
-│   └── test_workspace.py              # Tests all 15 dashboard views & calculations
+├── styles/
+│   └── workspace.css                  # Clean dashboard UI styling
 │
-├── DEPLOYMENT.md                  # Streamlit Cloud & production guide
-├── requirements.txt               # Strict version-pinned dependencies
-└── README.md                      # Project documentation
+├── tests/                             # Automated test suite
+│   ├── test_model_reproducibility.py  # Verifies 6,000 test scores match to 1e-10
+│   └── test_workspace.py              # Automated tests covering all 15 views
+│
+├── requirements.txt                   # Version-pinned Python dependencies
+└── README.md                          # Repository documentation
 ```
 
 ---
 
-## Quickstart & Reproducibility
+## 9. Quickstart and Reproduction Guide
 
-### 1. Prerequisites
-* Python 3.12
-* Git
+### Environment Setup
 
-### 2. Setup Environment
 ```bash
-# Clone the repository
+# 1. Clone repository
 git clone https://github.com/huanzhenyang0125-cyber/default-credit-card-prediction.git
 cd default-credit-card-prediction
 
-# Create and activate virtual environment
+# 2. Initialize Python 3.12 virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Activate on Linux/macOS:
+source .venv/bin/activate
+# Activate on Windows:
+.\.venv\Scripts\activate
+
+# 3. Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Run Automated Tests
+### Reproducing Experiments and Running Tests
+
 ```bash
-# Run mathematical reproducibility check
+# Execute mathematical reproducibility test (verifies 6,000 scores to 1e-10)
 python tests/test_model_reproducibility.py
 
-# Run workspace and application test suite
+# Execute complete workspace functional test suite
 python tests/test_workspace.py
+
+# Re-run protocol-controlled final test evaluation
+python final_evaluation.py
 ```
 
-### 4. Launch Research Dashboard
+### Launching the Dashboard
+
 ```bash
-# Launch Streamlit app
 streamlit run app.py
 ```
 *On Windows, you can also double-click `Open dashboard.cmd` to start automatically on `http://localhost:8501`.*
 
 ---
 
-## Scientific Disclosures & Limitations
+## 10. Scientific Disclosures and Methodological Bounds
 
-In compliance with academic rigor and fair reporting standards:
-1. **Full-Sample Pre-exploration**: An exploratory analysis of descriptive distributions was conducted on the complete dataset prior to partitioning. All subsequent model comparisons adhered strictly to training-only fitting.
-2. **Historical vs. Live Operational Data**: The UCI dataset reflects Taiwan market dynamics from 2005. Economic regimes, consumer credit products, and inflation have evolved significantly; these findings illustrate methodology rather than production underwriting policies.
-3. **Synthetic Loss Scenarios**: The LGD and EAD figures used in the Decision Lab represent hypothetical stress parameters for sensitivity testing rather than empirical bank portfolio recoveries.
-4. **Deterministic Reproducibility**: The model pipeline has been verified to reproduce all 6,000 held-out probability scores with zero numerical drift ($\text{tolerance} < 10^{-10}$) within local Python 3.12 environments.
+1. **Prior Aggregate Exploration**: Exploratory analysis of aggregate feature distributions was conducted across the 30,000 observations prior to creating the 60/20/20 partition. All subsequent model fitting, feature scaling, and parameter selection adhered strictly to training-only partitions.
+2. **Temporal and Geographic Validity**: The dataset records Taiwanese consumer credit dynamics from 2005. Changes in macroeconomics, interest rates, underwriting standards, and electronic banking limit direct out-of-distribution transfer to modern lending portfolios without recalibration.
+3. **Historical Ranking vs. Causal Intervention**: Capacity calculations describe the concentration of historical defaults within ranked queues. They do not demonstrate counterfactual loss prevention or borrower behavioral changes under active intervention.
+4. **Deterministic Local Reproducibility**: The model pipeline reproduces all 6,000 held-out prediction probabilities within an absolute numerical tolerance of $10^{-10}$ in local Python 3.12 environments.
 
 ---
 
-## References & Attribution
+## 11. References and Attribution
 
 1. **Yeh, I. C., & Lien, C. H. (2009)**. *The comparisons of data mining techniques for the predictive accuracy of probability of default of credit card clients*. Expert Systems with Applications, 36(2), 2473–2480.
 2. **UCI Machine Learning Repository**: Yeh, I. (2009). *Default of Credit Card Clients*. [https://doi.org/10.24432/C55S3H](https://doi.org/10.24432/C55S3H).
-3. **Reference Benchmarks**: [Roberto Franceschi's Default Credit Card Prediction](https://github.com/robertofranceschi/default-credit-card-prediction) was reviewed as a structural benchmark for empirical reporting. All pipelines, experimental code, and decisioning frameworks in this repository were independently formulated.
+3. **Reference Benchmarks**: [Roberto Franceschi's Default Credit Card Prediction](https://github.com/robertofranceschi/default-credit-card-prediction) was reviewed as a structural benchmark for academic reporting. All preprocessing pipelines, scripts, validation frameworks, and decision analyses in this repository were independently designed and implemented.
 
 ---
 

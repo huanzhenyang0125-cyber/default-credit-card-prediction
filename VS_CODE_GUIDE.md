@@ -3,7 +3,7 @@
 ## 第一次打开
 
 1. 打开 VS Code，点击“文件”→“打开文件夹”。
-2. 选择 `C:\Users\86187\Documents\ChatGPT\信用卡`，点击“选择文件夹”。需要打开整个文件夹，而不是只打开某个文件。
+2. 选择本项目根目录文件夹（例如 `default-credit-card-prediction`），点击“选择文件夹”。需要打开整个项目文件夹，而不是只打开某个单独文件。
 3. 左侧文件列表中，点击 `app.py` 查看展示页面代码，点击 `reports/credit_risk_research_report.md` 查看英文报告。
 4. 阅读报告时按 `Ctrl+Shift+V`，可显示排版后的预览。
 

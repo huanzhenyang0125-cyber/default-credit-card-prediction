@@ -5,7 +5,7 @@
 - Completed: project folder and existing Git repository checked; Python 3.12 virtual environment created; official UCI workbook downloaded; initial inspection scripted and run.
 - Actual results: 30,000 rows and 25 columns; 0 missing cells; 0 duplicated customer IDs; 23,364 non-default and 6,636 default records, a 22.12% default rate. Mean age 35.49 years; median age 34. Mean credit limit NT$167,484.32; median NT$140,000.
 - Issues: the initial default Python lacked `venv`, so a separate Python 3.12 environment was installed. Some observed category codes require further documentation. The dataset is old and geographically limited.
-- Learning introduced: Python variables and imports; Pandas tables, `head()` and `shape`; field names and the meaning of the target. The learner has practiced the preview commands; independent mastery is not assumed.
+- Technical milestones: Python environment and dependencies initialized; Pandas data ingestion, `head()` and `shape` verification; schema extraction and target distribution confirmed.
 - Next: Phase 2 exploratory analysis, starting with category values and data quality, followed by plots and default rates. No model results yet.
 
 ## Phase 2 — initial exploratory analysis (2026-11-09)

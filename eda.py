@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-root = Path.cwd()
+root = Path(__file__).resolve().parent
 data = pd.read_excel(root / "data/raw/default of credit card clients.xls", header=1, engine="calamine")
 target = "default payment next month"
 reports = root / "reports"
