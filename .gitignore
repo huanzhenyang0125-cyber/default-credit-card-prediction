@@ -19,6 +19,8 @@ dashboard.log
 .impeccable/
 .DS_Store
 Thumbs.db
+*上传*.cmd
+Upload_to_GitHub.cmd
 
 # Environment variables & secrets
 .env
