@@ -57,9 +57,9 @@ const chartLayout = (x, y) => ({
 const config = {responsive: true, displaylogo: false};
 function plot(id, x, y, point, xlabel, ylabel, name) {
   Plotly.react(id, [
-    {x, y, mode: 'lines', name, line: {color: '#147d83', width: 3}},
-    {x: [0,1], y: [0,1], mode: 'lines', name: 'Random', line: {color: '#9ba9ad', dash: 'dash', width: 2}},
-    {x: [point[0]], y: [point[1]], mode: 'markers', name: 'Selected', marker: {size: 12, color: '#172c32'}}
+    {x, y, mode: 'lines', name, line: {color: '#2864b5', width: 3}},
+    {x: [0,1], y: [0,1], mode: 'lines', name: 'Random', line: {color: '#9aaac0', dash: 'dash', width: 2}},
+    {x: [point[0]], y: [point[1]], mode: 'markers', name: 'Selected', marker: {size: 12, color: '#203d6a'}}
   ], chartLayout(xlabel, ylabel), config);
 }
 

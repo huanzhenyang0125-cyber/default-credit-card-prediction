@@ -243,8 +243,29 @@
     .tactile-slider { display:block; height:20px; margin:12px 0 2px; accent-color:#157c81; }
     .tactile-slider::-webkit-slider-thumb { cursor:grab; transition:transform .2s var(--glass-motion); }
     .tactile-slider:active::-webkit-slider-thumb { transform:scale(1.16); cursor:grabbing; }
+    /* White and blue glass: readable ink, translucent layers, restrained motion. */
+    :root {
+      --teal:#235aab; --teal-dark:#194a8c; --teal-light:#edf4ff;
+      --text:#17243a; --navy:#17243a; --text-muted:#53647a;
+      --glass-bg:rgba(255,255,255,.62); --blue-focus:#2d65b5;
+    }
+    .workspace { background-image:radial-gradient(ellipse at 82% 12%,rgba(154,190,242,.25),transparent 34%),radial-gradient(ellipse at 18% 82%,rgba(200,219,247,.26),transparent 38%); }
+    .sidebar { background:rgba(245,249,255,.72); }
+    .sim-result { background:rgba(241,247,255,.55); }
+    .interactive-slider-bar { background:rgba(231,240,253,.72); }
+    .overview-control { background:rgba(238,245,255,.58); }
+    .overview-control-header output, a { color:#245ca6; }
+    .brand-tag { border-color:rgba(53,104,175,.2); }
+    .tactile-slider { accent-color:#2b65b7; }
+    .nav-item { transition:transform .28s var(--glass-motion), background .2s ease, box-shadow .2s ease; }
+    .nav-item:hover { transform:translateX(3px); }
+    .nav-item:active { transform:scale(.97); }
+    .advanced summary { transition:color .2s ease; }
+    .advanced summary:hover { color:var(--teal); }
+    .badge-med { background:rgba(220,233,252,.8); color:#245398; }
+    :focus-visible { outline-color:var(--blue-focus); }
     @media (max-width:500px) { .welcome-banner { padding:24px; } .sim-metrics { grid-template-columns:1fr; } }
-    :focus-visible { outline:3px solid #16828b; outline-offset:3px; }
+    :focus-visible { outline:3px solid var(--blue-focus); outline-offset:3px; }
     @media (max-width:860px) { .sidebar { border-radius:0 0 24px 24px; } .nav-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .nav-item { min-width:0; } .plot { height:300px; } }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
     @supports not (backdrop-filter:blur(1px)) { .sidebar,.welcome-banner,.glass-card,.sim-split { background:#fff; } }
