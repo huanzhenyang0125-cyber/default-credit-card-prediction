@@ -13,7 +13,7 @@ function showTab(id, button) {
     el.setAttribute('aria-current', active ? 'page' : 'false');
   });
   if (!evidence || !window.Plotly) return;
-  if (id === 'overview') renderCapacity('plot-overview-curve', 10);
+  if (id === 'overview') updateOverview();
   if (id === 'capacity') updateCapacity();
   if (id === 'roc') updateROC();
 }
@@ -49,7 +49,7 @@ function calcRisk() {
 
 const chartLayout = (x, y) => ({
   margin: {l: 58, r: 18, t: 20, b: 76}, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-  font: {family: 'Inter, sans-serif', color: '#313a43', size: 12},
+  font: {family: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif', color: '#313a43', size: 12},
   xaxis: {title: {text: x}, tickformat: '.0%', range: [0, 1], gridcolor: '#e9eeef', zeroline: false},
   yaxis: {title: {text: y}, tickformat: '.0%', range: [0, 1], gridcolor: '#e9eeef', zeroline: false},
   legend: {orientation: 'h', y: -0.24},
@@ -76,6 +76,12 @@ function renderCapacity(id, pct) {
   for (let i = 0; i < n; i++) { captured += evidence.outcomes[i]; if ((i+1) % 30 === 0 || i === n-1) {x.push((i+1)/n); y.push(captured/total);} }
   const selected = capacityAt(pct);
   plot(id, x, y, [selected.slots/n, selected.recall], 'Accounts reviewed', 'Defaults covered', 'Model ranking');
+}
+function updateOverview() {
+  const pct = Number($('overview-capacity').value), d = capacityAt(pct);
+  $('overview-capacity-label').textContent = `${pct}%`;
+  $('overview-summary').textContent = `${d.slots.toLocaleString()} accounts reviewed · ${d.captured.toLocaleString()} observed defaults · ${percent(d.recall)} of all defaults`;
+  renderCapacity('plot-overview-curve', pct);
 }
 function updateCapacity() {
   const pct = Number($('inp-cap').value), d = capacityAt(pct);
@@ -122,9 +128,16 @@ async function init() {
       label.append(input); advanced.append(label);
     });
     Object.values(primary).forEach(id => $(`inp-${id}`).addEventListener('input', calcRisk));
-    $('inp-cap').addEventListener('input', updateCapacity);
+    $('overview-capacity').addEventListener('input', () => {
+      $('inp-cap').value = $('overview-capacity').value;
+      updateOverview();
+    });
+    $('inp-cap').addEventListener('input', () => {
+      $('overview-capacity').value = $('inp-cap').value;
+      updateCapacity();
+    });
     $('inp-roc-thresh').addEventListener('input', updateROC);
-    calcRisk(); renderCapacity('plot-overview-curve', 10);
+    calcRisk(); updateOverview();
     note('Historical research · synthetic inputs · not a lending decision');
   } catch (error) {
     note('Data could not be loaded. Open this page through a web server and refresh.');
