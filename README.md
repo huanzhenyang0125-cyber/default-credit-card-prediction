@@ -140,7 +140,7 @@ We conducted a comparative validation experiment:
 * Model trained with all 23 predictors (including `SEX`, `EDUCATION`, and `MARRIAGE`): **Validation ROC-AUC = 0.7899**
 * Model trained strictly with 20 non-demographic predictors: **Validation ROC-AUC = 0.7863**
 
-Removing demographic attributes causes a negligible reduction in predictive ranking power ($\Delta \text{AUC} = 0.0036$) while preventing disparate treatment on protected grounds. Consequently, the final model strictly restricts its input vector to the 20 financial exposure, bill, and delinquency attributes.
+Excluding SEX, EDUCATION, and MARRIAGE changed the reported validation AUC by 0.0036. The final 20-feature model still includes AGE. Excluding selected attributes does not establish fairness or eliminate proxy effects; group outcomes require further assessment.
 
 ---
 
@@ -259,6 +259,10 @@ The final 20-feature Random Forest model was scored on the held-out test split (
 ---
 
 ## 7. Interactive Research Workspace
+
+The [browser dashboard](https://huanzhenyang0125-cyber.github.io/default-credit-card-prediction/) is a static GitHub Pages application. Its simulator evaluates an exported copy of the fixed 20-feature random forest in the browser; five common inputs are shown as sliders and the other inputs default to training-set medians. The review-capacity and ROC controls use saved test-set predictions. The simulator uses synthetic profiles and its loss and risk bands are illustrative assumptions, not lending recommendations. Earlier full-dataset exploration limits the independence of the held-out evaluation.
+
+To reproduce the static dashboard's model and evaluation data, run `python scripts/export_web_model.py` from the repository root. The export contains the fitted forest and held-out outcomes, and `python tests/test_web_evidence.py` compares its predictions with the Python pipeline. To preview locally, run `python -m http.server 8765` and open `http://localhost:8765/`.
 
 The repository provides a complete web workspace developed in **Streamlit** for research exploration and real-time inference.
 

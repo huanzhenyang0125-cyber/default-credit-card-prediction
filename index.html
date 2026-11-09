@@ -6,11 +6,11 @@
   <title>Credit Risk Lab | Analytics Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     :root {
-      --bg: #f8fafc;
+      --bg: #ffffff;
       --card-bg: rgba(255, 255, 255, 0.82);
       --border: rgba(226, 232, 240, 0.85);
       --border-focus: rgba(22, 125, 141, 0.4);
@@ -20,11 +20,11 @@
       --teal-dark: #0e5666;
       --teal-light: #f0fdfa;
       --navy: #172B4D;
-      --radius: 16px;
+      --radius: 24px;
       --glass-shadow: 0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
       --glass-motion: cubic-bezier(.34, 1.56, .64, 1);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; -webkit-font-smoothing: antialiased; }
 
     /* App Frame */
@@ -86,7 +86,7 @@
       height: 100vh;
       overflow-y: auto;
       padding: 32px 40px;
-      background: #f8fafc;
+      background: #ffffff;
     }
     @media (max-width: 860px) {
       body { height: auto; overflow: auto; }
@@ -207,6 +207,31 @@
       color: var(--navy);
     }
     .interactive-slider-bar span { color: var(--teal); font-weight: 700; }
+
+    /* Light glass surfaces with quiet depth and readable text. */
+    :root { --text:#151c21; --navy:#182126; --text-muted:#56636b; --glass-bg:rgba(255,255,255,.78); --blur:20px; }
+    body,.workspace { background:#fff; }
+    .workspace { background-image:radial-gradient(ellipse at 80% 0%,rgba(174,218,217,.16),transparent 38%),radial-gradient(ellipse at 10% 72%,rgba(211,224,237,.16),transparent 40%); }
+    .sidebar,.welcome-banner,.glass-card,.sim-split { background:var(--glass-bg); backdrop-filter:blur(var(--blur)) saturate(180%); -webkit-backdrop-filter:blur(var(--blur)) saturate(180%); border:1px solid rgba(205,216,220,.75); box-shadow:0 12px 40px rgba(31,50,60,.075), inset 0 1px rgba(255,255,255,.95); }
+    .sidebar { border-radius:0 24px 24px 0; }
+    .sim-result { background:rgba(242,248,248,.55); }
+    .kpi-cell,.sim-box { background:rgba(255,255,255,.72); border-radius:16px; }
+    .status { margin:0 auto 16px; max-width:1000px; color:#52636a; font-size:.75rem; }
+    .advanced { margin-top:18px; } .advanced summary { cursor:pointer; font-weight:650; }
+    .advanced summary span { color:var(--text-muted); font-size:.8rem; font-weight:400; margin-left:8px; }
+    .advanced p,.explanation { color:#52616a; font-size:.8rem; line-height:1.6; margin-top:12px; }
+    .advanced-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:16px; }
+    .advanced-field { font-size:.8rem; font-weight:600; color:var(--navy); display:grid; gap:6px; }
+    .advanced-field input { width:100%; border:1px solid #cddadc; border-radius:10px; padding:10px; font:inherit; background:#fff; color:#182126; }
+    .plot { height:350px; width:100%; } a { color:#116a71; text-underline-offset:3px; }
+    .brand-tag,.brand span,.sidebar-footer,.control-sub,.kpi-cell .label,.kpi-cell .sub { font-size:.75rem; }
+    .sidebar-footer p:last-child { color:#56636b !important; font-size:.75rem !important; }
+    .interactive-slider-bar { gap:12px; flex-wrap:wrap; }
+    :focus-visible { outline:3px solid #16828b; outline-offset:3px; }
+    @media (max-width:860px) { .sidebar { border-radius:0 0 24px 24px; } .nav-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .nav-item { min-width:0; } .plot { height:300px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+    @supports not (backdrop-filter:blur(1px)) { .sidebar,.welcome-banner,.glass-card,.sim-split { background:#fff; } }
+
   </style>
 </head>
 <body>
@@ -239,7 +264,7 @@
         </button>
       </nav>
 
-      <div class="sidebar-footer">
+      <div class="sidebar-footer"><p><a href="reports/Credit_Risk_Research_Report.pdf">Research report ↗</a> · <a href="https://github.com/huanzhenyang0125-cyber/default-credit-card-prediction">GitHub ↗</a></p>
         <p><strong>30,000</strong> accounts</p>
         <p>Base default: <strong>22.12%</strong></p>
         <p style="margin-top: 4px; font-size: 0.7rem; color: #94a3b8;">UCI Credit Data · Taiwan</p>
@@ -247,13 +272,12 @@
     </aside>
 
     <!-- Main Workspace Area -->
-    <main class="workspace">
+    <main class="workspace"><div id="status" class="status" role="status">Loading model and evaluation data…</div>
       
       <!-- 1. OVERVIEW VIEW -->
       <section id="view-overview" class="view-panel active">
         <!-- Sleek Welcome Banner -->
         <div class="welcome-banner">
-          <div class="welcome-badge">FINTECH MACHINE LEARNING LAB</div>
           <h1 class="welcome-title">Credit Risk & Decision Workspace</h1>
           <p class="welcome-desc">Auditable default discrimination, interactive applicant simulation, and queue capacity planning on 30,000 credit accounts.</p>
         </div>
@@ -267,7 +291,7 @@
           <div class="kpi-cell">
             <div class="label">Brier Score</div>
             <div class="val">0.1358</div>
-            <div class="sub">Calibrated Probability</div>
+            <div class="sub">Probability error · lower is better</div>
           </div>
           <div class="kpi-cell">
             <div class="label">Top 10% Recall</div>
@@ -282,9 +306,9 @@
         </div>
 
         <div class="glass-card">
-          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 4px;">Cumulative Default Coverage by Review Capacity</h3>
+          <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 4px;">Cumulative Default Coverage by Review Capacity</h2>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;"><strong>600 review slots · 415 historical defaults · 31.27% coverage.</strong> The highest-risk 10% of test accounts concentrates 3.13× more defaults than random allocation.</p>
-          <div id="plot-overview-curve" style="height: 350px;"></div>
+          <div id="plot-overview-curve" class="plot"></div><p class="explanation">Historical outcomes, not evidence of prevented defaults. Full-data exploration preceded the split, so the test set was not fully untouched.</p>
         </div>
       </section>
 
@@ -292,7 +316,7 @@
       <section id="view-simulator" class="view-panel">
         <div class="header-bar">
           <h1 class="header-title">Applicant Risk Simulator</h1>
-          <p class="header-desc">Adjust applicant credit variables to calculate live probability of default.</p>
+          <p class="header-desc">Explore how a synthetic account is scored by the trained random forest.</p>
         </div>
 
         <div class="sim-split">
@@ -303,8 +327,8 @@
                 September Repayment Status (PAY_0)
                 <span id="txt-pay0">Delay 1 month (1)</span>
               </div>
-              <input type="range" class="tactile-slider" id="inp-pay0" min="-1" max="5" value="1" step="1">
-              <div class="control-sub">-1: Paid duly; 0: Revolving; 1~5: Delay in months</div>
+              <input type="range" class="tactile-slider" aria-label="September repayment status" id="inp-pay0" min="-1" max="5" value="1" step="1">
+              <div class="control-sub">Positive codes indicate months delayed; zero and negative codes require careful interpretation.</div>
             </div>
 
             <div class="control-row">
@@ -312,8 +336,8 @@
                 August Repayment Status (PAY_2)
                 <span id="txt-pay2">Revolving (0)</span>
               </div>
-              <input type="range" class="tactile-slider" id="inp-pay2" min="-1" max="5" value="0" step="1">
-              <div class="control-sub">-1: Paid duly; 0: Revolving; 1~5: Delay in months</div>
+              <input type="range" class="tactile-slider" aria-label="August repayment status" id="inp-pay2" min="-1" max="5" value="0" step="1">
+              <div class="control-sub">Positive codes indicate months delayed; zero and negative codes require careful interpretation.</div>
             </div>
 
             <div class="control-row">
@@ -321,7 +345,7 @@
                 Credit Limit (LIMIT_BAL)
                 <span id="txt-limit">NT$ 150,000</span>
               </div>
-              <input type="range" class="tactile-slider" id="inp-limit" min="10000" max="800000" value="150000" step="10000">
+              <input type="range" class="tactile-slider" aria-label="Credit limit" id="inp-limit" min="10000" max="800000" value="150000" step="10000">
             </div>
 
             <div class="control-row">
@@ -329,7 +353,7 @@
                 Age
                 <span id="txt-age">34 yrs</span>
               </div>
-              <input type="range" class="tactile-slider" id="inp-age" min="21" max="75" value="34" step="1">
+              <input type="range" class="tactile-slider" aria-label="Age" id="inp-age" min="21" max="75" value="34" step="1">
             </div>
 
             <div class="control-row">
@@ -337,28 +361,34 @@
                 September Payment (PAY_AMT1)
                 <span id="txt-payamt">NT$ 5,000</span>
               </div>
-              <input type="range" class="tactile-slider" id="inp-payamt" min="0" max="60000" value="5000" step="1000">
+              <input type="range" class="tactile-slider" aria-label="September payment" id="inp-payamt" min="0" max="60000" value="5000" step="1000">
             </div>
           </div>
 
           <!-- Right: Big Scorecard -->
           <div class="sim-result">
-            <div class="score-big" id="disp-pd">30.4%</div>
+            <div class="score-big" id="disp-pd">Loading…</div>
             <div class="score-caption">Estimated Probability of Default</div>
-            <span class="badge-tag badge-med" id="disp-badge">Moderate Risk</span>
+            <span class="badge-tag badge-med" id="disp-badge">Illustrative risk band</span>
 
             <div class="sim-metrics">
               <div class="sim-box">
-                <div class="t">Expected Loss</div>
-                <div class="v" id="disp-el">NT$ 20,490</div>
+                <div class="t">Illustrative expected loss</div>
+                <div class="v" id="disp-el">—</div>
               </div>
               <div class="sim-box">
-                <div class="t">Action</div>
-                <div class="v" id="disp-action" style="color: #b45309;">Secondary Review</div>
+                <div class="t">Scenario assumptions</div>
+                <div class="v">45% LGD · limit as exposure</div>
               </div>
             </div>
           </div>
         </div>
+        <details class="advanced glass-card">
+          <summary>Advanced settings <span>15 additional model inputs</span></summary>
+          <p>The remaining inputs start at training-set medians. Edit them to explore a complete 20-feature profile. Synthetic combinations may not represent real accounts.</p>
+          <div id="advanced-fields" class="advanced-grid"></div>
+        </details>
+        <p class="explanation">The estimated probability comes from the documented random forest. Risk bands are illustrative (below 10%, 10–25%, 25% and above), not approved lending rules. Expected loss uses an assumed 45% loss rate and the credit limit as exposure; both are fixed scenario assumptions, not measured losses.</p>
       </section>
 
       <!-- 3. REVIEW CAPACITY VIEW (Interactive Curve + Slider) -->
@@ -373,32 +403,32 @@
             <span>Audit Queue Allocation: <span id="cap-pct-txt">10%</span></span>
             <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;" id="cap-slots-txt">600 Accounts</span>
           </div>
-          <input type="range" class="tactile-slider" id="inp-cap" min="1" max="50" value="10" step="1" style="margin-bottom: 20px;">
+          <input type="range" class="tactile-slider" aria-label="Review capacity percentage" id="inp-cap" min="1" max="50" value="10" step="1" style="margin-bottom: 20px;">
 
           <div class="kpi-row" style="margin-bottom: 16px;">
             <div class="kpi-cell">
               <div class="label">Defaults Captured</div>
-              <div class="val" id="cap-defaults" style="color: var(--teal);">415</div>
+              <div class="val" id="cap-defaults" style="color: var(--teal);">—</div>
               <div class="sub">Total defaults: 1,327</div>
             </div>
             <div class="kpi-cell">
               <div class="label">Default Recall</div>
-              <div class="val" id="cap-recall">31.3%</div>
+              <div class="val" id="cap-recall">—</div>
               <div class="sub">Coverage Share</div>
             </div>
             <div class="kpi-cell">
               <div class="label">Precision</div>
-              <div class="val" id="cap-prec">69.2%</div>
-              <div class="sub">Queue Accuracy</div>
+              <div class="val" id="cap-prec">—</div>
+              <div class="sub">Defaults / accounts reviewed</div>
             </div>
             <div class="kpi-cell">
               <div class="label">Lift</div>
-              <div class="val" id="cap-lift" style="color: var(--navy);">3.13x</div>
+              <div class="val" id="cap-lift" style="color: var(--navy);">—</div>
               <div class="sub">vs. Random Selection</div>
             </div>
           </div>
 
-          <div id="plot-capacity-interactive" style="height: 350px;"></div>
+          <div id="plot-capacity-interactive" class="plot"></div><p class="explanation">Historical ranking in the 6,000-account test set. Captured defaults do not establish prevented losses. Tied scores follow the order in the saved evaluation file.</p>
         </div>
       </section>
 
@@ -414,213 +444,33 @@
             <span>Classification Cutoff: <span id="txt-roc-thresh">0.50</span></span>
             <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">Threshold Slider</span>
           </div>
-          <input type="range" class="tactile-slider" id="inp-roc-thresh" min="0.01" max="0.99" step="0.01" value="0.50" style="margin-bottom: 20px;">
+          <input type="range" class="tactile-slider" aria-label="Classification threshold" id="inp-roc-thresh" min="0.01" max="0.99" step="0.01" value="0.50" style="margin-bottom: 20px;">
 
           <div class="kpi-row" style="margin-bottom: 16px;">
             <div class="kpi-cell">
               <div class="label">Recall (TPR)</div>
-              <div class="val" id="roc-disp-rec">34.7%</div>
+              <div class="val" id="roc-disp-rec">—</div>
               <div class="sub">Sensitivity</div>
             </div>
             <div class="kpi-cell">
               <div class="label">False Positive Rate</div>
-              <div class="val" id="roc-disp-fpr">5.1%</div>
+              <div class="val" id="roc-disp-fpr">—</div>
               <div class="sub">1 - Specificity</div>
             </div>
             <div class="kpi-cell">
               <div class="label">Precision</div>
-              <div class="val" id="roc-disp-prec">66.0%</div>
+              <div class="val" id="roc-disp-prec">—</div>
               <div class="sub">Positive Discovery</div>
             </div>
           </div>
 
-          <div id="plot-roc-interactive" style="height: 350px;"></div>
+          <div id="plot-roc-interactive" class="plot"></div><p class="explanation">Calculated from the saved test-set probabilities. Threshold exploration is descriptive; it is not an independently validated policy selection.</p>
         </div>
       </section>
 
     </main>
   </div>
 
-  <script>
-    // Tab Switching
-    function showTab(tabId, el) {
-      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-      const targetPanel = document.getElementById('view-' + tabId);
-      if (targetPanel) targetPanel.classList.add('active');
-
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-      if (el) {
-        el.classList.add('active');
-      }
-
-      setTimeout(() => {
-        if (tabId === 'overview') {
-          renderOverviewPlot();
-          Plotly.Plots.resize('plot-overview-curve');
-        }
-        if (tabId === 'capacity') {
-          updateCapacity(parseInt(document.getElementById('inp-cap').value));
-          Plotly.Plots.resize('plot-capacity-interactive');
-        }
-        if (tabId === 'roc') {
-          updateROC(document.getElementById('inp-roc-thresh').value);
-          Plotly.Plots.resize('plot-roc-interactive');
-        }
-      }, 30);
-    }
-
-    // 1. Simulator Engine
-    const intercept = -1.4736;
-    const weights = {
-      LIMIT_BAL: { w: -0.1142, mean: 167373.11, std: 129563.16 },
-      AGE: { w: 0.0628, mean: 35.39, std: 9.21 },
-      PAY_0: { w: 0.6891, mean: -0.01, std: 1.12 },
-      PAY_2: { w: 0.0824, mean: -0.13, std: 1.20 },
-      PAY_AMT1: { w: -0.1816, mean: 5645.86, std: 16793.52 }
-    };
-
-    function calcRisk() {
-      const p0 = parseFloat(document.getElementById('inp-pay0').value);
-      const p2 = parseFloat(document.getElementById('inp-pay2').value);
-      const lim = parseFloat(document.getElementById('inp-limit').value);
-      const age = parseFloat(document.getElementById('inp-age').value);
-      const amt = parseFloat(document.getElementById('inp-payamt').value);
-
-      document.getElementById('txt-pay0').innerText = p0 <= 0 ? (p0 === -1 ? 'Paid duly (-1)' : 'Revolving (0)') : `Delay ${p0} mo (${p0})`;
-      document.getElementById('txt-pay2').innerText = p2 <= 0 ? (p2 === -1 ? 'Paid duly (-1)' : 'Revolving (0)') : `Delay ${p2} mo (${p2})`;
-      document.getElementById('txt-limit').innerText = 'NT$ ' + lim.toLocaleString();
-      document.getElementById('txt-age').innerText = age + ' yrs';
-      document.getElementById('txt-payamt').innerText = 'NT$ ' + amt.toLocaleString();
-
-      let z = intercept;
-      z += ((lim - weights.LIMIT_BAL.mean) / weights.LIMIT_BAL.std) * weights.LIMIT_BAL.w;
-      z += ((age - weights.AGE.mean) / weights.AGE.std) * weights.AGE.w;
-      z += ((p0 - weights.PAY_0.mean) / weights.PAY_0.std) * weights.PAY_0.w;
-      z += ((p2 - weights.PAY_2.mean) / weights.PAY_2.std) * weights.PAY_2.w;
-      z += ((amt - weights.PAY_AMT1.mean) / weights.PAY_AMT1.std) * weights.PAY_AMT1.w;
-
-      const pd = 1 / (1 + Math.exp(-z));
-      document.getElementById('disp-pd').innerText = (pd * 100).toFixed(1) + '%';
-
-      const el = Math.round(pd * 0.45 * lim);
-      document.getElementById('disp-el').innerText = 'NT$ ' + el.toLocaleString();
-
-      const b = document.getElementById('disp-badge');
-      const a = document.getElementById('disp-action');
-      if (pd < 0.20) {
-        b.className = 'badge-tag badge-low'; b.innerText = 'Low Risk';
-        a.innerText = 'Standard Approval'; a.style.color = '#15803d';
-      } else if (pd < 0.45) {
-        b.className = 'badge-tag badge-med'; b.innerText = 'Moderate Risk';
-        a.innerText = 'Secondary Review'; a.style.color = '#b45309';
-      } else {
-        b.className = 'badge-tag badge-high'; b.innerText = 'High Risk';
-        a.innerText = 'Manual Audit'; a.style.color = '#b91c1c';
-      }
-    }
-
-    ['inp-pay0', 'inp-pay2', 'inp-limit', 'inp-age', 'inp-payamt'].forEach(id => {
-      document.getElementById(id).addEventListener('input', calcRisk);
-    });
-
-    // 2. Capacity Curve Engine
-    const capData = {
-      1: { s: 60, d: 53, r: 0.040, p: 0.883, l: 3.99 },
-      5: { s: 300, d: 224, r: 0.169, p: 0.747, l: 3.38 },
-      10: { s: 600, d: 415, r: 0.313, p: 0.692, l: 3.13 },
-      15: { s: 900, d: 552, r: 0.416, p: 0.613, l: 2.77 },
-      20: { s: 1200, d: 678, r: 0.511, p: 0.565, l: 2.55 },
-      25: { s: 1500, d: 771, r: 0.581, p: 0.514, l: 2.32 },
-      30: { s: 1800, d: 839, r: 0.632, p: 0.466, l: 2.11 },
-      40: { s: 2400, d: 931, r: 0.702, p: 0.388, l: 1.75 },
-      50: { s: 3000, d: 1026, r: 0.773, p: 0.342, l: 1.55 }
-    };
-    const capX = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 1.0];
-    const capY = [0.040, 0.169, 0.313, 0.416, 0.511, 0.581, 0.632, 0.702, 0.773, 0.931, 1.0];
-
-    function renderOverviewPlot() {
-      Plotly.react('plot-overview-curve', [
-        { x: capX, y: capY, mode: 'lines', name: 'Model Ranking', line: { color: '#167D8D', width: 3 } },
-        { x: [0, 1], y: [0, 1], mode: 'lines', name: 'Random Selection', line: { color: '#94a3b8', dash: 'dash', width: 2 } },
-        { x: [0.10], y: [0.313], mode: 'markers', name: '10% Review', marker: { size: 12, color: '#172B4D' } }
-      ], {
-        margin: { l: 45, r: 15, t: 15, b: 40 },
-        xaxis: { title: 'Accounts Reviewed', tickformat: '.0%' },
-        yaxis: { title: 'Defaults Covered (Recall)', tickformat: '.0%' },
-        legend: { orientation: 'h', y: -0.2 }
-      }, { responsive: true });
-    }
-
-    function updateCapacity(pct) {
-      document.getElementById('cap-pct-txt').innerText = pct + '%';
-      const slots = Math.round(6000 * pct / 100);
-      document.getElementById('cap-slots-txt').innerText = slots.toLocaleString() + ' Accounts';
-
-      const keys = Object.keys(capData).map(Number);
-      let closest = keys.reduce((prev, curr) => Math.abs(curr - pct) < Math.abs(prev - pct) ? curr : prev);
-      const d = capData[closest];
-
-      document.getElementById('cap-defaults').innerText = d.d.toLocaleString();
-      document.getElementById('cap-recall').innerText = (d.r * 100).toFixed(1) + '%';
-      document.getElementById('cap-prec').innerText = (d.p * 100).toFixed(1) + '%';
-      document.getElementById('cap-lift').innerText = d.l.toFixed(2) + 'x';
-
-      Plotly.react('plot-capacity-interactive', [
-        { x: capX, y: capY, mode: 'lines', name: 'Model Ranking', line: { color: '#167D8D', width: 3 } },
-        { x: [0, 1], y: [0, 1], mode: 'lines', name: 'Random Allocation', line: { color: '#94a3b8', dash: 'dash', width: 2 } },
-        { x: [pct / 100], y: [d.r], mode: 'markers', name: `${pct}% Queue`, marker: { size: 12, color: '#172B4D' } }
-      ], {
-        margin: { l: 45, r: 15, t: 15, b: 40 },
-        xaxis: { title: 'Accounts Reviewed (Capacity)', tickformat: '.0%' },
-        yaxis: { title: 'Defaults Covered (Recall)', tickformat: '.0%' },
-        legend: { orientation: 'h', y: -0.2 }
-      }, { responsive: true });
-    }
-
-    document.getElementById('inp-cap').addEventListener('input', (e) => updateCapacity(parseInt(e.target.value)));
-
-    // 3. ROC Curve Engine
-    const rocX = [0, 0.012, 0.028, 0.051, 0.082, 0.125, 0.180, 0.260, 0.380, 0.520, 0.720, 1];
-    const rocY = [0, 0.140, 0.250, 0.347, 0.460, 0.560, 0.660, 0.750, 0.830, 0.900, 0.960, 1];
-
-    function updateROC(thVal) {
-      const th = parseFloat(thVal);
-      document.getElementById('txt-roc-thresh').innerText = th.toFixed(2);
-
-      let rec = Math.max(0.05, Math.min(0.96, 0.347 * (0.50 / th)));
-      let fpr = Math.max(0.01, Math.min(0.95, 0.051 * (0.50 / th)));
-      let prec = Math.max(0.22, Math.min(0.85, 0.660 * (th / 0.50)));
-
-      document.getElementById('roc-disp-rec').innerText = (rec * 100).toFixed(1) + '%';
-      document.getElementById('roc-disp-fpr').innerText = (fpr * 100).toFixed(1) + '%';
-      document.getElementById('roc-disp-prec').innerText = (prec * 100).toFixed(1) + '%';
-
-      Plotly.react('plot-roc-interactive', [
-        { x: rocX, y: rocY, mode: 'lines', name: 'Random Forest ROC (AUC 0.774)', line: { color: '#167D8D', width: 3 } },
-        { x: [0, 1], y: [0, 1], mode: 'lines', name: 'Random', line: { color: '#94a3b8', dash: 'dash', width: 2 } },
-        { x: [fpr], y: [rec], mode: 'markers', name: `Threshold ${th.toFixed(2)}`, marker: { size: 12, color: '#172B4D' } }
-      ], {
-        margin: { l: 45, r: 15, t: 15, b: 40 },
-        xaxis: { title: 'False Positive Rate (FPR)', range: [0, 1] },
-        yaxis: { title: 'Recall (TPR)', range: [0, 1] },
-        legend: { orientation: 'h', y: -0.2 }
-      }, { responsive: true });
-    }
-
-    document.getElementById('inp-roc-thresh').addEventListener('input', (e) => updateROC(e.target.value));
-
-    // Responsive window resize
-    window.addEventListener('resize', () => {
-      Plotly.Plots.resize('plot-overview-curve');
-      Plotly.Plots.resize('plot-capacity-interactive');
-      Plotly.Plots.resize('plot-roc-interactive');
-    });
-
-    // Init
-    window.addEventListener('DOMContentLoaded', () => {
-      calcRisk();
-      renderOverviewPlot();
-    });
-  </script>
+  <script src="scripts/workspace.js" defer></script>
 </body>
 </html>
