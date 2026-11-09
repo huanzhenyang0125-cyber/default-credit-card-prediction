@@ -11,8 +11,8 @@
   <style>
     :root {
       --bg: #f8fafc;
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --border: rgba(226, 232, 240, 0.8);
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --border: rgba(226, 232, 240, 0.85);
       --border-focus: rgba(22, 125, 141, 0.4);
       --text: #0f172a;
       --text-muted: #64748b;
@@ -43,36 +43,41 @@
       flex-shrink: 0;
     }
     .brand { margin-bottom: 28px; padding-left: 8px; }
+    .brand-tag { display: inline-block; font-size: 0.65rem; font-weight: 700; color: var(--teal); background: var(--teal-light); border: 1px solid rgba(22, 125, 141, 0.25); padding: 2px 8px; border-radius: 999px; margin-bottom: 6px; letter-spacing: 0.05em; }
     .brand h2 { font-size: 1.15rem; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; }
-    .brand span { font-size: 0.68rem; font-weight: 700; color: var(--teal); letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand span { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
 
-    .nav-list { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+    .nav-list { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; }
     .nav-item {
       display: flex;
       align-items: center;
+      gap: 10px;
       padding: 10px 14px;
       border: 1px solid transparent;
       border-radius: 12px;
       background: transparent;
       color: #334155;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s var(--glass-motion);
       text-align: left;
       width: 100%;
     }
+    .nav-item svg { flex-shrink: 0; color: var(--text-muted); transition: color 0.2s; }
     .nav-item:hover { background: rgba(255, 255, 255, 0.85); transform: translateX(3px); }
+    .nav-item:hover svg { color: var(--navy); }
     .nav-item.active {
       background: #ffffff;
-      border-color: rgba(226, 232, 240, 0.9);
+      border-color: rgba(226, 232, 240, 0.95);
       box-shadow: 0 4px 14px rgba(26, 69, 89, 0.08);
       color: var(--teal);
       font-weight: 600;
       transform: none;
     }
+    .nav-item.active svg { color: var(--teal); }
 
-    .sidebar-footer { padding: 12px 8px 0; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted); }
+    .sidebar-footer { padding: 14px 8px 0; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
     .sidebar-footer strong { color: var(--text); }
 
     /* Main Workspace */
@@ -94,14 +99,52 @@
     .view-panel.active { display: block; animation: fade-in 0.25s ease; }
     @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .header-bar { margin-bottom: 24px; }
-    .header-title { font-size: 1.6rem; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; }
-    .header-desc { font-size: 0.88rem; color: var(--text-muted); margin-top: 2px; }
+    /* Welcome Hero Banner */
+    .welcome-banner {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--glass-shadow);
+    }
+    .welcome-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--teal);
+      background: var(--teal-light);
+      border: 1px solid rgba(22, 125, 141, 0.2);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .welcome-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .welcome-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 760px;
+    }
+
+    .header-bar { margin-bottom: 20px; }
+    .header-title { font-size: 1.45rem; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; }
+    .header-desc { font-size: 0.86rem; color: var(--text-muted); margin-top: 2px; }
 
     /* Minimalist Glass Card */
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--glass-shadow);
@@ -125,7 +168,8 @@
     .control-row { margin-bottom: 16px; }
     .control-row:last-child { margin-bottom: 0; }
     .control-label { display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 600; color: var(--navy); margin-bottom: 5px; }
-    .control-label span { color: var(--teal); font-weight: 500; font-size: 0.8rem; }
+    .control-label span { color: var(--teal); font-weight: 600; font-size: 0.8rem; }
+    .control-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
     
     .tactile-slider {
       width: 100%;
@@ -163,11 +207,6 @@
       color: var(--navy);
     }
     .interactive-slider-bar span { color: var(--teal); font-weight: 700; }
-
-    /* Clean Compact Tables */
-    .mini-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
-    .mini-table th { background: #f8fafc; padding: 8px 12px; text-align: left; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); }
-    .mini-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: #1e293b; }
   </style>
 </head>
 <body>
@@ -176,20 +215,34 @@
     <!-- Left Frosted Glass Sidebar -->
     <aside class="sidebar">
       <div class="brand">
-        <h2>Credit Risk Lab</h2>
-        <span>Decision Workspace</span>
+        <div class="brand-tag">CREDIT RISK LAB</div>
+        <h2>Decision Lab</h2>
+        <span>Analytics Workspace</span>
       </div>
 
       <nav class="nav-list">
-        <button class="nav-item active" onclick="showTab('overview')">Overview</button>
-        <button class="nav-item" onclick="showTab('simulator')">Risk Simulator</button>
-        <button class="nav-item" onclick="showTab('capacity')">Review Capacity</button>
-        <button class="nav-item" onclick="showTab('roc')">ROC & Validation</button>
+        <button class="nav-item active" onclick="showTab('overview', this)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Overview
+        </button>
+        <button class="nav-item" onclick="showTab('simulator', this)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Risk Simulator
+        </button>
+        <button class="nav-item" onclick="showTab('capacity', this)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Review Capacity
+        </button>
+        <button class="nav-item" onclick="showTab('roc', this)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          ROC & Validation
+        </button>
       </nav>
 
       <div class="sidebar-footer">
-        <p><strong>30,000</strong> records</p>
-        <p>Base Default: <strong>22.12%</strong></p>
+        <p><strong>30,000</strong> accounts</p>
+        <p>Base default: <strong>22.12%</strong></p>
+        <p style="margin-top: 4px; font-size: 0.7rem; color: #94a3b8;">UCI Credit Data · Taiwan</p>
       </div>
     </aside>
 
@@ -198,9 +251,11 @@
       
       <!-- 1. OVERVIEW VIEW -->
       <section id="view-overview" class="view-panel active">
-        <div class="header-bar">
-          <h1 class="header-title">Portfolio Overview</h1>
-          <p class="header-desc">Held-out test results and baseline performance metrics.</p>
+        <!-- Sleek Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="welcome-badge">FINTECH MACHINE LEARNING LAB</div>
+          <h1 class="welcome-title">Credit Risk & Decision Workspace</h1>
+          <p class="welcome-desc">Auditable default discrimination, interactive applicant simulation, and queue capacity planning on 30,000 credit accounts.</p>
         </div>
 
         <div class="kpi-row">
@@ -227,7 +282,8 @@
         </div>
 
         <div class="glass-card">
-          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 12px;">Cumulative Default Coverage by Review Capacity</h3>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 4px;">Cumulative Default Coverage by Review Capacity</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;"><strong>600 review slots · 415 historical defaults · 31.27% coverage.</strong> The highest-risk 10% of test accounts concentrates 3.13× more defaults than random allocation.</p>
           <div id="plot-overview-curve" style="height: 350px;"></div>
         </div>
       </section>
@@ -248,6 +304,7 @@
                 <span id="txt-pay0">Delay 1 month (1)</span>
               </div>
               <input type="range" class="tactile-slider" id="inp-pay0" min="-1" max="5" value="1" step="1">
+              <div class="control-sub">-1: Paid duly; 0: Revolving; 1~5: Delay in months</div>
             </div>
 
             <div class="control-row">
@@ -256,6 +313,7 @@
                 <span id="txt-pay2">Revolving (0)</span>
               </div>
               <input type="range" class="tactile-slider" id="inp-pay2" min="-1" max="5" value="0" step="1">
+              <div class="control-sub">-1: Paid duly; 0: Revolving; 1~5: Delay in months</div>
             </div>
 
             <div class="control-row">
@@ -385,15 +443,30 @@
 
   <script>
     // Tab Switching
-    function showTab(tabId) {
+    function showTab(tabId, el) {
       document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('view-' + tabId).classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-      event.currentTarget.classList.add('active');
+      const targetPanel = document.getElementById('view-' + tabId);
+      if (targetPanel) targetPanel.classList.add('active');
 
-      if (tabId === 'overview') renderOverviewPlot();
-      if (tabId === 'capacity') updateCapacity(parseInt(document.getElementById('inp-cap').value));
-      if (tabId === 'roc') updateROC(document.getElementById('inp-roc-thresh').value);
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      if (el) {
+        el.classList.add('active');
+      }
+
+      setTimeout(() => {
+        if (tabId === 'overview') {
+          renderOverviewPlot();
+          Plotly.Plots.resize('plot-overview-curve');
+        }
+        if (tabId === 'capacity') {
+          updateCapacity(parseInt(document.getElementById('inp-cap').value));
+          Plotly.Plots.resize('plot-capacity-interactive');
+        }
+        if (tabId === 'roc') {
+          updateROC(document.getElementById('inp-roc-thresh').value);
+          Plotly.Plots.resize('plot-roc-interactive');
+        }
+      }, 30);
     }
 
     // 1. Simulator Engine
@@ -413,8 +486,8 @@
       const age = parseFloat(document.getElementById('inp-age').value);
       const amt = parseFloat(document.getElementById('inp-payamt').value);
 
-      document.getElementById('txt-pay0').innerText = p0 <= 0 ? (p0 === -1 ? 'Pay duly (-1)' : 'Revolving (0)') : `Delay ${p0} mo (${p0})`;
-      document.getElementById('txt-pay2').innerText = p2 <= 0 ? (p2 === -1 ? 'Pay duly (-1)' : 'Revolving (0)') : `Delay ${p2} mo (${p2})`;
+      document.getElementById('txt-pay0').innerText = p0 <= 0 ? (p0 === -1 ? 'Paid duly (-1)' : 'Revolving (0)') : `Delay ${p0} mo (${p0})`;
+      document.getElementById('txt-pay2').innerText = p2 <= 0 ? (p2 === -1 ? 'Paid duly (-1)' : 'Revolving (0)') : `Delay ${p2} mo (${p2})`;
       document.getElementById('txt-limit').innerText = 'NT$ ' + lim.toLocaleString();
       document.getElementById('txt-age').innerText = age + ' yrs';
       document.getElementById('txt-payamt').innerText = 'NT$ ' + amt.toLocaleString();
@@ -535,6 +608,13 @@
     }
 
     document.getElementById('inp-roc-thresh').addEventListener('input', (e) => updateROC(e.target.value));
+
+    // Responsive window resize
+    window.addEventListener('resize', () => {
+      Plotly.Plots.resize('plot-overview-curve');
+      Plotly.Plots.resize('plot-capacity-interactive');
+      Plotly.Plots.resize('plot-roc-interactive');
+    });
 
     // Init
     window.addEventListener('DOMContentLoaded', () => {
