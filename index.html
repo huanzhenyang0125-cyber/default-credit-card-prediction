@@ -1,439 +1,714 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>信用风险智能决策实验室 | 宦震洋个人项目</title>
-  <meta name="description" content="基于 UCI 30,000 笔真实信用卡违约数据的机器学习与有限排审容量决策框架。">
+  <title>Credit Risk Decision Lab | Research Workspace</title>
+  <meta name="description" content="An explainable credit-risk research workspace connecting default prediction to resource-constrained account review.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
+      --glass-radius: 20px;
+      --glass-control-radius: 14px;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-blur: 20px;
+      --glass-border: rgba(255, 255, 255, 0.9);
+      --glass-shadow: 0 8px 32px rgba(31, 38, 100, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      --glass-motion: cubic-bezier(.34, 1.56, .64, 1);
+      --teal: #167D8D;
+      --teal-dark: #0e5666;
+      --teal-light: #f0fdfa;
+      --navy: #172B4D;
+      --muted: #64748b;
       --border: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --primary: #0f766e;
-      --primary-light: #f0fdfa;
-      --primary-border: #ccfbf1;
-      --accent: #2563eb;
-      --danger: #dc2626;
-      --danger-bg: #fef2f2;
-      --warning: #d97706;
-      --warning-bg: #fffbeb;
-      --success: #16a34a;
-      --success-bg: #f0fdf4;
-      --radius: 16px;
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+      --bg: #f8fafc;
+      --text: #111827;
+      --text-sub: #4b5563;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased; }
 
-    /* Nav */
-    header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
-    .nav { display: flex; justify-content: space-between; align-items: center; height: 64px; }
-    .brand { font-size: 1.05rem; font-weight: 700; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-    .brand span { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); border-radius: 999px; }
-    .nav-actions { display: flex; gap: 12px; }
-    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.875rem; font-weight: 600; padding: 8px 16px; border-radius: 999px; text-decoration: none; transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: #115e59; }
-    .btn-outline { background: #fff; border-color: var(--border); color: var(--text-main); }
-    .btn-outline:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    /* Layout */
+    .app-layout { display: flex; width: 100vw; min-height: 100vh; }
+    
+    /* Sidebar matching Codex Glass */
+    .sidebar {
+      width: 280px;
+      background: var(--glass-bg);
+      border-right: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      padding: 28px 18px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+    }
+    .brand h2 { font-size: 1.25rem; font-weight: 700; color: var(--navy); line-height: 1.25; margin-bottom: 4px; }
+    .brand caption, .brand-caption { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: var(--teal); text-transform: uppercase; display: block; margin-bottom: 24px; }
+    
+    .nav-group { display: flex; flex-direction: column; gap: 4px; flex-grow: 1; }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 11px 16px;
+      border: 1px solid transparent;
+      border-radius: var(--glass-control-radius);
+      background: transparent;
+      color: #253d55;
+      font-size: 0.92rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform .24s var(--glass-motion), background .2s ease, box-shadow .2s ease;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.72); transform: translateX(4px); }
+    .nav-btn.active {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 5px 18px rgba(26, 69, 89, 0.12), inset 0 1px 0 #fff;
+      color: var(--teal-dark);
+      font-weight: 600;
+      transform: none;
+    }
+    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.8125rem; color: var(--muted); }
+    .sidebar-footer strong { color: var(--text); }
 
-    /* Hero */
-    .hero { padding: 64px 0 48px; text-align: center; }
-    .badge { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--primary); background: var(--primary-light); border: 1px solid var(--primary-border); padding: 4px 14px; border-radius: 999px; margin-bottom: 16px; }
-    .hero h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text-main); margin-bottom: 16px; line-height: 1.2; }
-    .hero p { font-size: 1.125rem; color: var(--text-muted); max-width: 720px; margin: 0 auto 32px; }
-    .hero-buttons { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    /* Main Area */
+    .main-content { flex-grow: 1; padding: 40px 48px; max-width: 1180px; overflow-y: auto; }
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-size: 2.1rem; font-weight: 700; letter-spacing: -0.03em; color: var(--navy); margin-bottom: 6px; }
+    .page-desc { font-size: 1rem; color: var(--text-sub); }
 
-    /* KPI Bar */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 36px 0; }
-    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); }
-    .kpi-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
-    .kpi-card .value { font-size: 1.85rem; font-weight: 800; color: var(--text-main); line-height: 1.1; margin-bottom: 4px; }
-    .kpi-card .sub { font-size: 0.8125rem; color: var(--primary); font-weight: 500; }
+    /* Segmented Control */
+    .segmented-control {
+      display: inline-flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .seg-btn {
+      padding: 7px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .seg-btn.active { background: #fff; color: var(--teal-dark); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
 
-    /* Sections */
-    .section { margin: 56px 0; }
-    .section-header { margin-bottom: 24px; }
-    .section-title { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); margin-bottom: 6px; }
-    .section-desc { font-size: 0.9375rem; color: var(--text-muted); }
+    /* Glass Metric Cards */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-bottom: 28px; }
+    .metric-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--glass-radius);
+      padding: 22px;
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    }
+    .metric-card .label { font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric-card .value { font-size: 1.9rem; font-weight: 700; color: #111; line-height: 1.1; margin-bottom: 4px; }
+    .metric-card .help { font-size: 0.8125rem; color: var(--teal); font-weight: 500; }
 
-    /* Simulator Interactive Box */
-    .simulator-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr; }
-    @media (max-width: 860px) { .simulator-card { grid-template-columns: 1fr; } }
-    .sim-form { padding: 32px; border-right: 1px solid var(--border); }
-    .sim-display { padding: 32px; background: #fafbfc; display: flex; flex-direction: column; justify-content: center; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: flex; justify-content: space-between; font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
-    .form-group label span { font-weight: 400; color: var(--text-muted); }
-    .form-control { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; background: #fff; }
-    .form-range { width: 100%; accent-color: var(--primary); }
+    /* Glass Content Panels */
+    .glass-panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--glass-radius);
+      padding: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      margin-bottom: 28px;
+    }
+    .glass-panel h3 { font-size: 1.25rem; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
 
-    .score-circle { text-align: center; margin-bottom: 24px; }
-    .score-val { font-size: 3.5rem; font-weight: 800; color: var(--primary); line-height: 1; letter-spacing: -0.04em; }
-    .score-label { font-size: 0.875rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
-    .risk-badge { display: inline-block; padding: 6px 16px; border-radius: 999px; font-size: 0.875rem; font-weight: 700; margin-top: 12px; }
-    .risk-low { background: var(--success-bg); color: var(--success); }
-    .risk-med { background: var(--warning-bg); color: var(--warning); }
-    .risk-high { background: var(--danger-bg); color: var(--danger); }
+    /* Interactive Sliders */
+    .slider-container { margin: 20px 0; }
+    .slider-label { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.92rem; margin-bottom: 8px; }
+    .tactile-slider {
+      width: 100%;
+      height: 8px;
+      accent-color: var(--teal);
+      border-radius: 999px;
+      cursor: grab;
+    }
+    .tactile-slider:active { cursor: grabbing; }
 
-    .sim-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .sim-stat-box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
-    .sim-stat-box .title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
-    .sim-stat-box .stat { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
+    /* Tables */
+    .styled-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.875rem; }
+    .styled-table th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 600; color: #334155; border-bottom: 1px solid var(--border); }
+    .styled-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: #1e293b; }
+    .styled-table tr:hover td { background: #f8fafc; }
 
-    /* Capacity Explorer */
-    .capacity-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
-    .capacity-slider-wrap { margin: 24px 0 32px; }
-    .capacity-slider { width: 100%; height: 8px; border-radius: 999px; accent-color: var(--primary); }
-    .capacity-ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+    /* Simulator Form */
+    .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .sim-grid { grid-template-columns: 1fr; } body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: static; } }
+    .form-field { margin-bottom: 16px; }
+    .form-field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #334155; }
+    .form-field input, .form-field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.9rem; }
+    .btn-submit { background: var(--teal); color: #fff; padding: 12px 24px; border: none; border-radius: 12px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-submit:hover { background: var(--teal-dark); transform: scale(1.02); }
 
-    /* Figures Grid */
-    .figures-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-    .figure-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: transform 0.2s; }
-    .figure-card:hover { transform: translateY(-3px); }
-    .figure-card img { width: 100%; height: auto; display: block; border-bottom: 1px solid var(--border); }
-    .figure-card .caption { padding: 16px 20px; }
-    .figure-card h4 { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-    .figure-card p { font-size: 0.8125rem; color: var(--text-muted); }
-
-    /* Footer */
-    footer { border-top: 1px solid var(--border); background: #fff; padding: 48px 0; margin-top: 72px; text-align: center; }
-    footer p { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 12px; }
-    .footer-links { display: flex; justify-content: center; gap: 20px; }
-    .footer-links a { color: var(--text-main); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
-    .footer-links a:hover { color: var(--primary); }
+    .tag-low { background: #dcfce7; color: #15803d; padding: 4px 12px; border-radius: 999px; font-weight: 600; font-size: 0.8rem; }
+    .tag-med { background: #fef3c7; color: #b45309; padding: 4px 12px; border-radius: 999px; font-weight: 600; font-size: 0.8rem; }
+    .tag-high { background: #fee2e2; color: #b91c1c; padding: 4px 12px; border-radius: 999px; font-weight: 600; font-size: 0.8rem; }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation -->
-  <header>
-    <div class="container nav">
-      <a class="brand" href="#">
-        Credit Risk Decision Lab
-        <span>Research Portfolio</span>
-      </a>
-      <div class="nav-actions">
-        <a class="btn btn-outline" href="reports/Credit_Risk_Research_Report.pdf" target="_blank">研报 PDF</a>
-        <a class="btn btn-primary" href="https://github.com/huanzhenyang0125-cyber/default-credit-card-prediction" target="_blank">GitHub 源码</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <!-- Hero Header -->
-    <section class="hero">
-      <span class="badge">FINTECH MACHINE LEARNING</span>
-      <h1>信用风险决策与排审优化实验室</h1>
-      <p>基于台湾 30,000 笔真实信用卡历史样本，将机器学习违约概率预测（AUC 0.774）直接链接至信贷业务中的“有限人工排审工位”与“非对称成本优化”。</p>
-      <div class="hero-buttons">
-        <a class="btn btn-primary" href="#simulator">在线测算模拟器</a>
-        <a class="btn btn-outline" href="#capacity">排审容量分析</a>
-        <a class="btn btn-outline" href="reports/Credit_Risk_Research_Report.pdf" target="_blank">阅读完整研究报告 (PDF)</a>
-      </div>
-    </section>
-
-    <!-- Top KPI Bar -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="label">样本总量</div>
-        <div class="value">30,000</div>
-        <div class="sub">基准违约率 22.12%</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">测试集 ROC-AUC</div>
-        <div class="value">0.7741</div>
-        <div class="sub">6,000 条隔离测试集</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">概率校准 Brier Score</div>
-        <div class="value">0.1358</div>
-        <div class="sub">均方概率误差，越小越准</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">Top 10% 排审拦截率</div>
-        <div class="value">31.27%</div>
-        <div class="sub">415 笔违约 · 3.13x 基准提升</div>
-      </div>
-    </div>
-
-    <!-- Interactive Section 1: Real-Time Risk Simulator -->
-    <section class="section" id="simulator">
-      <div class="section-header">
-        <h2 class="section-title">实时客户信用风险测算模拟器</h2>
-        <p class="section-desc">调整下方申请人财务与还款指标，观察前端数学引擎实时测算出的违约概率（PD）、风险评级及预期损失（EL）。</p>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>Credit Risk<br>Decision Lab</h2>
+        <span class="brand-caption">RISK ANALYTICS WORKSPACE</span>
       </div>
 
-      <div class="simulator-card">
-        <!-- Form Inputs -->
-        <div class="sim-form">
-          <div class="form-group">
-            <label>
-              9月还款状态 (PAY_0)
-              <span id="txt-pay0">按时还款 (0)</span>
-            </label>
-            <input type="range" class="form-range" id="inp-pay0" min="-1" max="5" value="0" step="1">
-            <small style="color: var(--text-muted); font-size: 0.75rem;">-1: 按时还款; 0: 正常循环; 1~5: 逾期月数 (核心强信号)</small>
+      <nav class="nav-group">
+        <button class="nav-btn active" onclick="switchSection('overview')">Overview</button>
+        <button class="nav-btn" onclick="switchSection('explorer')">Data explorer</button>
+        <button class="nav-btn" onclick="switchSection('validation')">Model validation</button>
+        <button class="nav-btn" onclick="switchSection('decision')">Decision lab</button>
+        <button class="nav-btn" onclick="switchSection('simulator')">Prediction simulator</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p><strong>30,000</strong> accounts · <strong>22.12%</strong> default</p>
+        <caption style="font-size: 0.72rem; color: var(--muted); display: block; margin-top: 4px;">UCI credit-card portfolio · Taiwan, 2005</caption>
+        <div style="margin-top: 14px; display: flex; gap: 8px;">
+          <a href="reports/Credit_Risk_Research_Report.pdf" target="_blank" style="font-size: 0.78rem; color: var(--teal); text-decoration: none; font-weight: 600;">Report PDF ↗</a>
+          <span style="color: var(--border);">·</span>
+          <a href="https://github.com/huanzhenyang0125-cyber/default-credit-card-prediction" target="_blank" style="font-size: 0.78rem; color: var(--teal); text-decoration: none; font-weight: 600;">GitHub ↗</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- 1. OVERVIEW SECTION -->
+      <div id="sec-overview" class="section-pane">
+        <div class="page-header">
+          <h1 class="page-title">Credit risk research</h1>
+          <p class="page-desc">Model evidence, review capacity and operational trade-offs.</p>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="label">ROC-AUC</div>
+            <div class="value">0.774</div>
+            <div class="help">Held-out risk discrimination</div>
           </div>
-
-          <div class="form-group">
-            <label>
-              8月还款状态 (PAY_2)
-              <span id="txt-pay2">按时还款 (0)</span>
-            </label>
-            <input type="range" class="form-range" id="inp-pay2" min="-1" max="5" value="0" step="1">
+          <div class="metric-card">
+            <div class="label">Average precision</div>
+            <div class="value">0.550</div>
+            <div class="help">Precision–recall summary</div>
           </div>
-
-          <div class="form-group">
-            <label>
-              授信额度 (LIMIT_BAL)
-              <span id="txt-limit">NT$ 150,000</span>
-            </label>
-            <input type="range" class="form-range" id="inp-limit" min="10000" max="800000" value="150000" step="10000">
+          <div class="metric-card">
+            <div class="label">Brier score</div>
+            <div class="value">0.136</div>
+            <div class="help">Probability error · lower is better</div>
           </div>
-
-          <div class="form-group">
-            <label>
-              客户年龄 (AGE)
-              <span id="txt-age">34 岁</span>
-            </label>
-            <input type="range" class="form-range" id="inp-age" min="21" max="75" value="34" step="1">
-          </div>
-
-          <div class="form-group" style="margin-bottom: 0;">
-            <label>
-              最近还款金额 (PAY_AMT1)
-              <span id="txt-payamt">NT$ 5,000</span>
-            </label>
-            <input type="range" class="form-range" id="inp-payamt" min="0" max="60000" value="5000" step="1000">
+          <div class="metric-card">
+            <div class="label">Test accounts</div>
+            <div class="value">6,000</div>
+            <div class="help">1,327 observed defaults</div>
           </div>
         </div>
 
-        <!-- Output Score Display -->
-        <div class="sim-display">
-          <div class="score-circle">
-            <div class="score-val" id="disp-pd">13.2%</div>
-            <div class="score-label">预估下月违约概率 (PD)</div>
-            <span class="risk-badge risk-low" id="disp-badge">低风险客户 (Low)</span>
-          </div>
+        <div class="glass-panel">
+          <h3>Review capacity and default coverage</h3>
+          <div id="chart-overview-curve" style="height: 340px;"></div>
+          <p style="margin-top: 14px; font-weight: 600; color: var(--navy);">600 review slots · 415 historical defaults · 31.27% coverage.</p>
+          <p style="font-size: 0.875rem; color: var(--muted); margin-top: 4px;">The highest-risk 10% of test accounts concentrates more observed defaults than the random-selection expectation of 132.7. Open Decision lab to adjust capacity and inspect incremental coverage.</p>
+        </div>
 
-          <div class="sim-stats">
-            <div class="sim-stat-box">
-              <div class="title">测算预期损失 (EL)</div>
-              <div class="stat" id="disp-el">NT$ 8,910</div>
+        <div class="glass-panel">
+          <h3>An auditable research workflow</h3>
+          <table class="styled-table">
+            <thead>
+              <tr><th>Stage</th><th>Evidence</th><th>Scope</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Data</strong></td><td>Official workbook; raw values retained</td><td>30,000 historical records</td></tr>
+              <tr><td><strong>Development</strong></td><td>Baselines, calibration and cross-validation</td><td>18,000 train / 6,000 validation</td></tr>
+              <tr><td><strong>Evaluation</strong></td><td>Recorded protocol and held-out split</td><td>6,000 test; already scored</td></tr>
+              <tr><td><strong>Decision analysis</strong></td><td>Capacity, assumed costs and group diagnostics</td><td>Exploratory; no profit claim</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. DATA EXPLORER SECTION -->
+      <div id="sec-explorer" class="section-pane" style="display: none;">
+        <div class="page-header">
+          <h1 class="page-title">Explore the source data</h1>
+          <p class="page-desc">Inspect distributions and coding before drawing conclusions.</p>
+        </div>
+
+        <div class="segmented-control">
+          <button class="seg-btn active" onclick="switchExplorerTab('dist')">Distributions</button>
+          <button class="seg-btn" onclick="switchExplorerTab('repay')">Repayment behaviour</button>
+          <button class="seg-btn" onclick="switchExplorerTab('risk')">Risk scores</button>
+          <button class="seg-btn" onclick="switchExplorerTab('quality')">Data quality</button>
+        </div>
+
+        <div id="tab-exp-dist">
+          <div class="glass-panel">
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+              <select id="exp-measure" onchange="renderExpDist()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem;">
+                <option value="LIMIT_BAL">Credit limit (LIMIT_BAL)</option>
+                <option value="AGE">Age (AGE)</option>
+                <option value="PAY_AMT1">Latest payment (PAY_AMT1)</option>
+              </select>
             </div>
-            <div class="sim-stat-box">
-              <div class="title">排审建议建议</div>
-              <div class="stat" id="disp-action" style="font-size: 0.95rem;">常规放行</div>
+            <div id="chart-exp-dist" style="height: 350px;"></div>
+          </div>
+        </div>
+
+        <div id="tab-exp-repay" style="display: none;">
+          <div class="glass-panel">
+            <h3>Repayment Delay Status (PAY_0) Distribution</h3>
+            <div id="chart-exp-repay" style="height: 350px;"></div>
+            <caption style="font-size: 0.8125rem; color: var(--muted); margin-top: 10px; display: block;">Delinquency in September 2005 shows the steepest gradient in default rate.</caption>
+          </div>
+        </div>
+
+        <div id="tab-exp-risk" style="display: none;">
+          <div class="glass-panel">
+            <h3>Fixed-model scores on already-evaluated test records</h3>
+            <div id="chart-exp-scores" style="height: 350px;"></div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 10px;">Predicted probabilities describe associations learned from historical data; they do not identify causal effects.</p>
+          </div>
+        </div>
+
+        <div id="tab-exp-quality" style="display: none;">
+          <div class="metric-grid">
+            <div class="metric-card"><div class="label">Missing cells</div><div class="value">0</div><div class="help">Interpreted by Pandas</div></div>
+            <div class="metric-card"><div class="label">Duplicate IDs</div><div class="value">0</div><div class="help">Customer identifiers</div></div>
+            <div class="metric-card"><div class="label">Negative bills</div><div class="value">590</div><div class="help">Preserved for audit</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. MODEL VALIDATION SECTION -->
+      <div id="sec-validation" class="section-pane" style="display: none;">
+        <div class="page-header">
+          <h1 class="page-title">Examine the model evidence</h1>
+          <p class="page-desc">Separate ranking performance, probability quality and subgroup behaviour.</p>
+        </div>
+
+        <div class="segmented-control">
+          <button class="seg-btn active" onclick="switchValTab('perf')">Performance</button>
+          <button class="seg-btn" onclick="switchValTab('calib')">Calibration</button>
+          <button class="seg-btn" onclick="switchValTab('import')">Feature importance</button>
+          <button class="seg-btn" onclick="switchValTab('stab')">Stability</button>
+          <button class="seg-btn" onclick="switchValTab('group')">Group diagnostics</button>
+        </div>
+
+        <div id="tab-val-perf">
+          <div class="glass-panel">
+            <h3>Candidate model metrics on validation data</h3>
+            <table class="styled-table">
+              <thead><tr><th>Model</th><th>ROC-AUC</th><th>Average precision</th><th>Brier score</th></tr></thead>
+              <tbody>
+                <tr><td>Logistic regression</td><td>0.7259</td><td>0.5001</td><td>0.1452</td></tr>
+                <tr><td><strong>Random forest (Final Chosen)</strong></td><td><strong>0.7899</strong></td><td><strong>0.5642</strong></td><td><strong>0.1337</strong></td></tr>
+                <tr><td>Calibrated forest (3-fold sigmoid)</td><td>0.7867</td><td>0.5598</td><td>0.1343</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="glass-panel">
+            <h3>Interactive Threshold on Held-Out Test Curve</h3>
+            <div class="slider-container">
+              <div class="slider-label">
+                <span>Explore classification threshold</span>
+                <span id="val-thresh-val" style="color: var(--teal);">0.50</span>
+              </div>
+              <input type="range" class="tactile-slider" id="inp-val-thresh" min="0.01" max="0.99" step="0.01" value="0.50" oninput="updateValCurve(this.value)">
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric-card"><div class="label">Recall</div><div class="value" id="val-disp-rec">34.7%</div><div class="help">Defaults identified</div></div>
+              <div class="metric-card"><div class="label">False positive rate</div><div class="value" id="val-disp-fpr">5.1%</div><div class="help">Non-defaults flagged</div></div>
+              <div class="metric-card"><div class="label">Precision</div><div class="value" id="val-disp-prec">66.0%</div><div class="help">Flagged defaults share</div></div>
+            </div>
+
+            <div id="chart-val-roc" style="height: 380px;"></div>
+          </div>
+        </div>
+
+        <div id="tab-val-calib" style="display: none;">
+          <div class="glass-panel">
+            <h3>Validation Probability Calibration</h3>
+            <img src="figures/calibration.png" style="max-width: 520px; width: 100%; border-radius: 12px; margin: 16px 0;" alt="Calibration curve">
+            <p style="font-size: 0.85rem; color: var(--muted);">Calibration did not improve the overall Brier score in this candidate comparison. Ranking quality and probability reliability are distinct properties.</p>
+          </div>
+        </div>
+
+        <div id="tab-val-import" style="display: none;">
+          <div class="glass-panel">
+            <h3>Training Impurity Feature Importance</h3>
+            <div id="chart-val-import" style="height: 380px;"></div>
+          </div>
+        </div>
+
+        <div id="tab-val-stab" style="display: none;">
+          <div class="glass-panel">
+            <h3>Training-only three-fold forest cross-validation</h3>
+            <table class="styled-table">
+              <thead><tr><th>Fold</th><th>ROC-AUC</th><th>Average precision</th><th>Brier</th></tr></thead>
+              <tbody>
+                <tr><td>Fold 1</td><td>0.7875</td><td>0.5642</td><td>0.1341</td></tr>
+                <tr><td>Fold 2</td><td>0.7802</td><td>0.5521</td><td>0.1350</td></tr>
+                <tr><td>Fold 3</td><td>0.7790</td><td>0.5498</td><td>0.1352</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-val-group" style="display: none;">
+          <div class="glass-panel">
+            <h3>Final Model Demographic Group Diagnostics</h3>
+            <table class="styled-table">
+              <thead><tr><th>Sex Code</th><th>Accounts</th><th>Defaults</th><th>Recall</th><th>FPR</th><th>Flagged Share</th></tr></thead>
+              <tbody>
+                <tr><td>1 (Male)</td><td>2,402</td><td>561</td><td>34.0%</td><td>5.5%</td><td>12.2%</td></tr>
+                <tr><td>2 (Female)</td><td>3,598</td><td>766</td><td>35.2%</td><td>4.8%</td><td>11.3%</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-top: 10px;">Excluding demographic predictors (SEX, EDUCATION, MARRIAGE) from final model input preserves legal compliance.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. DECISION LAB SECTION -->
+      <div id="sec-decision" class="section-pane" style="display: none;">
+        <div class="page-header">
+          <h1 class="page-title">Turn risk scores into questions</h1>
+          <p class="page-desc">Explore review workload and explicit assumptions without claiming intervention benefits.</p>
+        </div>
+
+        <div class="segmented-control">
+          <button class="seg-btn active" onclick="switchDecTab('cap')">Review capacity</button>
+          <button class="seg-btn" onclick="switchDecTab('marginal')">Marginal coverage</button>
+          <button class="seg-btn" onclick="switchDecTab('cost')">Threshold & cost</button>
+          <button class="seg-btn" onclick="switchDecTab('loss')">Expected loss</button>
+        </div>
+
+        <div id="tab-dec-cap">
+          <div class="glass-panel">
+            <div class="slider-container">
+              <div class="slider-label">
+                <span>Accounts available for review (%)</span>
+                <span id="dec-cap-val" style="color: var(--teal); font-weight: 700;">10%</span>
+              </div>
+              <input type="range" class="tactile-slider" id="inp-dec-cap" min="1" max="100" value="10" step="1" oninput="updateDecCap(this.value)">
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric-card"><div class="label">Review slots</div><div class="value" id="disp-cap-slots">600</div><div class="help">10% of 6,000 test cases</div></div>
+              <div class="metric-card"><div class="label">Defaults captured</div><div class="value" id="disp-cap-def">415</div><div class="help">Historical outcomes</div></div>
+              <div class="metric-card"><div class="label">Default coverage</div><div class="value" id="disp-cap-cov">31.3%</div><div class="help">Share of 1,327 defaults</div></div>
+              <div class="metric-card"><div class="label">Review precision</div><div class="value" id="disp-cap-prec">69.2%</div><div class="help">Rate in selected queue</div></div>
+            </div>
+
+            <div id="chart-dec-curve" style="height: 380px;"></div>
+            <p id="disp-cap-lift" style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Random-selection expectation: 132.7 defaults. Historical concentration lift: 3.13×; this is not a causal improvement.</p>
+          </div>
+        </div>
+
+        <div id="tab-dec-marginal" style="display: none;">
+          <div class="glass-panel">
+            <h3>What do the next 300 reviews add?</h3>
+            <div id="chart-dec-marginal" style="height: 350px;"></div>
+          </div>
+        </div>
+
+        <div id="tab-dec-cost" style="display: none;">
+          <div class="glass-panel">
+            <h3>Asymmetric Error Cost Sensitivity</h3>
+            <div class="sim-grid">
+              <div class="form-field">
+                <label>Probability Threshold: <span id="txt-cost-thresh">0.50</span></label>
+                <input type="range" class="tactile-slider" min="0.05" max="0.95" step="0.05" value="0.50" oninput="updateCostCalc()">
+              </div>
+              <div class="form-field">
+                <label>FN to FP Cost Ratio: <span id="txt-cost-ratio">5×</span></label>
+                <input type="range" class="tactile-slider" id="inp-cost-ratio" min="1" max="20" step="1" value="5" oninput="updateCostCalc()">
+              </div>
+            </div>
+            <div class="metric-card" style="margin-top: 14px;">
+              <div class="label">Total Hypothetical Cost Units</div>
+              <div class="value" id="disp-cost-units">4,567</div>
+              <div class="help">Assumes FP = 1 unit, FN = 5 units</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-dec-loss" style="display: none;">
+          <div class="glass-panel">
+            <h3>Expected Loss Arithmetic</h3>
+            <div class="sim-grid">
+              <div class="form-field"><label>Assumed PD (%)</label><input type="number" id="el-pd" value="5.0" step="0.5" oninput="updateEL()"></div>
+              <div class="form-field"><label>Assumed LGD (%)</label><input type="number" id="el-lgd" value="45.0" step="1" oninput="updateEL()"></div>
+              <div class="form-field"><label>Assumed EAD (NTD)</label><input type="number" id="el-ead" value="100000" step="10000" oninput="updateEL()"></div>
+            </div>
+            <div class="metric-card" style="margin-top: 16px;">
+              <div class="label">Illustrative Expected Loss (NTD)</div>
+              <div class="value" id="disp-el-val">NT$ 2,250.00</div>
+              <div class="help">EL = PD × LGD × EAD</div>
             </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Interactive Section 2: Capacity Review Explorer -->
-    <section class="section" id="capacity">
-      <div class="section-header">
-        <h2 class="section-title">有限工位下的审核容量决策 (Review Capacity)</h2>
-        <p class="section-desc">在银行真实信贷运营中，调查员每天能复核的件数是受限的。拖动滑块查看分配不同比例工位时的拦截效率。</p>
-      </div>
-
-      <div class="capacity-box">
-        <div class="capacity-slider-wrap">
-          <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px;">
-            <span>排审工位配比: <span id="cap-pct-txt" style="color: var(--primary);">10%</span> (高危前列账户)</span>
-            <span>对应审核账户: <span id="cap-slots-txt">600 户</span></span>
-          </div>
-          <input type="range" class="capacity-slider" id="inp-cap" min="1" max="50" value="10" step="1">
-          <div class="capacity-ticks">
-            <span>1% (极度精细)</span>
-            <span>10% (推荐黄金档)</span>
-            <span>20% (常规排审)</span>
-            <span>35% (重度审核)</span>
-            <span>50% (半数排查)</span>
-          </div>
+      <!-- 5. PREDICTION SIMULATOR SECTION -->
+      <div id="sec-simulator" class="section-pane" style="display: none;">
+        <div class="page-header">
+          <h1 class="page-title">Prediction simulator</h1>
+          <p class="page-desc">Explore the fixed historical model with synthetic inputs. This is not a lending decision.</p>
         </div>
 
-        <div class="kpi-grid" style="margin: 0;">
-          <div class="kpi-card">
-            <div class="label">捕获实际违约数</div>
-            <div class="value" id="cap-defaults" style="color: var(--primary);">415 笔</div>
-            <div class="sub">测试集总计 1,327 笔违约</div>
-          </div>
-          <div class="kpi-card">
-            <div class="label">违约总覆盖率 (Recall)</div>
-            <div class="value" id="cap-recall">31.3%</div>
-            <div class="sub">占全量真实违约比重</div>
-          </div>
-          <div class="kpi-card">
-            <div class="label">审核精准度 (Precision)</div>
-            <div class="value" id="cap-prec">69.2%</div>
-            <div class="sub">被查账户中真实违约占比</div>
-          </div>
-          <div class="kpi-card">
-            <div class="label">较随机抽查效率提升</div>
-            <div class="value" id="cap-lift" style="color: var(--accent);">3.13x</div>
-            <div class="sub">随机仅能抓取 132.7 笔</div>
-          </div>
-        </div>
-      </div>
-    </section>
+        <div class="glass-panel">
+          <p style="font-size: 0.875rem; color: var(--muted); margin-bottom: 20px;">Inputs default to training-set medians. Submitting calculates estimated probability using the predetermined 20-feature standardizer and model weights.</p>
 
-    <!-- Section 3: Diagnostic Figures -->
-    <section class="section">
-      <div class="section-header">
-        <h2 class="section-title">核心模型图表与实证检验</h2>
-        <p class="section-desc">测试集严谨评测结果与探索性数据分析可视化。</p>
-      </div>
+          <div class="sim-grid">
+            <div>
+              <div class="form-field"><label>Credit limit (NTD)</label><input type="number" id="sim-limit" value="140000" step="10000"></div>
+              <div class="form-field"><label>Age (years)</label><input type="number" id="sim-age" value="34" step="1"></div>
+              <div class="form-field">
+                <label>Repayment status · September (PAY_0)</label>
+                <select id="sim-pay0">
+                  <option value="-1">Pay duly (-1)</option>
+                  <option value="0" selected>Revolving credit (0)</option>
+                  <option value="1">Payment delay 1 month (1)</option>
+                  <option value="2">Payment delay 2 months (2)</option>
+                  <option value="3">Payment delay 3 months (3)</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Repayment status · August (PAY_2)</label>
+                <select id="sim-pay2">
+                  <option value="-1">Pay duly (-1)</option>
+                  <option value="0" selected>Revolving credit (0)</option>
+                  <option value="1">Payment delay 1 month (1)</option>
+                  <option value="2">Payment delay 2 months (2)</option>
+                </select>
+              </div>
+            </div>
 
-      <div class="figures-grid">
-        <div class="figure-card">
-          <img src="figures/report_discrimination.png" alt="ROC and Precision Recall Curves">
-          <div class="caption">
-            <h4>模型区分度与 PR 曲线</h4>
-            <p>测试集 ROC-AUC 达到 0.7741，在 22.12% 不平衡基准下展现极高正类区分能力。</p>
+            <div>
+              <div class="form-field"><label>Bill amount · September (BILL_AMT1)</label><input type="number" id="sim-bill1" value="22000" step="1000"></div>
+              <div class="form-field"><label>Payment amount · September (PAY_AMT1)</label><input type="number" id="sim-payamt1" value="2100" step="500"></div>
+              <div class="form-field"><label>Payment amount · August (PAY_AMT2)</label><input type="number" id="sim-payamt2" value="2000" step="500"></div>
+              <div style="margin-top: 28px;">
+                <button class="btn-submit" onclick="runSim()">Estimate Default Probability</button>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="figure-card">
-          <img src="figures/report_capacity.png" alt="Review Capacity Curve">
-          <div class="caption">
-            <h4>排审容量累积收益曲线</h4>
-            <p>展示模型排序队列与随机排审的收益对比，Top 20% 工位即可捕获超半数 (51.09%) 违约。</p>
-          </div>
-        </div>
-
-        <div class="figure-card">
-          <img src="figures/eda_overview.png" alt="EDA Overview">
-          <div class="caption">
-            <h4>探索性数据分析分布</h4>
-            <p>揭示 9 月还款延期状态 (PAY_0) 与额度分组对违约率的决定性影响。</p>
+          <div id="sim-result-box" style="margin-top: 24px; padding: 20px; background: #f8fafc; border-radius: 14px; border: 1px solid var(--border); display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase;">Estimated probability of next-month default</span>
+                <div style="font-size: 2.4rem; font-weight: 700; color: var(--teal);" id="sim-disp-prob">13.2%</div>
+              </div>
+              <div id="sim-disp-tag" class="tag-low">Low Risk</div>
+            </div>
           </div>
         </div>
       </div>
-    </section>
-  </main>
 
-  <footer>
-    <div class="container">
-      <p>Credit Risk Decision Lab · 宦震洋 (Ryan Huan) · 莫纳什大学 金融科技 (FinTech)</p>
-      <div class="footer-links">
-        <a href="https://github.com/huanzhenyang0125-cyber/default-credit-card-prediction" target="_blank">GitHub 仓库</a>
-        <a href="reports/Credit_Risk_Research_Report.pdf" target="_blank">研究研报 (PDF)</a>
-        <a href="https://huanzhenyang0125-cyber.github.io/Developer-Portfolio/" target="_blank">个人作品集主页</a>
-      </div>
-    </div>
-  </footer>
+    </main>
+  </div>
 
   <script>
-    // 1. Client-Side Real-Time Risk Engine (Calibrated from Baseline Logistic Regression weights)
-    const intercept = -1.4736;
-    const weights = {
-      LIMIT_BAL: { w: -0.1142, mean: 167373.11, std: 129563.16 },
-      AGE: { w: 0.0628, mean: 35.39, std: 9.21 },
-      PAY_0: { w: 0.6891, mean: -0.01, std: 1.12 },
-      PAY_2: { w: 0.0824, mean: -0.13, std: 1.20 },
-      PAY_AMT1: { w: -0.1816, mean: 5645.86, std: 16793.52 }
-    };
-
-    function calculateRisk() {
-      const pay0 = parseFloat(document.getElementById('inp-pay0').value);
-      const pay2 = parseFloat(document.getElementById('inp-pay2').value);
-      const limit = parseFloat(document.getElementById('inp-limit').value);
-      const age = parseFloat(document.getElementById('inp-age').value);
-      const payamt = parseFloat(document.getElementById('inp-payamt').value);
-
-      // Labels update
-      document.getElementById('txt-pay0').innerText = pay0 <= 0 ? (pay0 === -1 ? '按时还款 (-1)' : '正常还款 (0)') : `逾期 ${pay0} 个月`;
-      document.getElementById('txt-pay2').innerText = pay2 <= 0 ? (pay2 === -1 ? '按时还款 (-1)' : '正常还款 (0)') : `逾期 ${pay2} 个月`;
-      document.getElementById('txt-limit').innerText = 'NT$ ' + limit.toLocaleString();
-      document.getElementById('txt-age').innerText = age + ' 岁';
-      document.getElementById('txt-payamt').innerText = 'NT$ ' + payamt.toLocaleString();
-
-      // Log-odds z score
-      let z = intercept;
-      z += ((limit - weights.LIMIT_BAL.mean) / weights.LIMIT_BAL.std) * weights.LIMIT_BAL.w;
-      z += ((age - weights.AGE.mean) / weights.AGE.std) * weights.AGE.w;
-      z += ((pay0 - weights.PAY_0.mean) / weights.PAY_0.std) * weights.PAY_0.w;
-      z += ((pay2 - weights.PAY_2.mean) / weights.PAY_2.std) * weights.PAY_2.w;
-      z += ((payamt - weights.PAY_AMT1.mean) / weights.PAY_AMT1.std) * weights.PAY_AMT1.w;
-
-      // Sigmoid
-      const pd = 1 / (1 + Math.exp(-z));
-      const pdPct = (pd * 100).toFixed(1) + '%';
-      document.getElementById('disp-pd').innerText = pdPct;
-
-      // Expected Loss = PD * LGD (45%) * EAD (LIMIT_BAL)
-      const el = Math.round(pd * 0.45 * limit);
-      document.getElementById('disp-el').innerText = 'NT$ ' + el.toLocaleString();
-
-      // Badge & action
-      const badge = document.getElementById('disp-badge');
-      const action = document.getElementById('disp-action');
-      if (pd < 0.20) {
-        badge.className = 'risk-badge risk-low';
-        badge.innerText = '低风险客户 (Low)';
-        action.innerText = '常规放行';
-        action.style.color = 'var(--success)';
-      } else if (pd < 0.45) {
-        badge.className = 'risk-badge risk-med';
-        badge.innerText = '中等风险 (Moderate)';
-        action.innerText = '建议复核';
-        action.style.color = 'var(--warning)';
-      } else {
-        badge.className = 'risk-badge risk-high';
-        badge.innerText = '高危预警 (High Risk)';
-        action.innerText = '人工严审/截留';
-        action.style.color = 'var(--danger)';
-      }
+    // Navigation
+    function switchSection(secId) {
+      document.querySelectorAll('.section-pane').forEach(el => el.style.display = 'none');
+      document.getElementById('sec-' + secId).style.display = 'block';
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
     }
 
-    ['inp-pay0', 'inp-pay2', 'inp-limit', 'inp-age', 'inp-payamt'].forEach(id => {
-      document.getElementById(id).addEventListener('input', calculateRisk);
+    function switchExplorerTab(tabId) {
+      ['dist', 'repay', 'risk', 'quality'].forEach(t => document.getElementById('tab-exp-' + t).style.display = 'none');
+      document.getElementById('tab-exp-' + tabId).style.display = 'block';
+      event.target.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function switchValTab(tabId) {
+      ['perf', 'calib', 'import', 'stab', 'group'].forEach(t => document.getElementById('tab-val-' + t).style.display = 'none');
+      document.getElementById('tab-val-' + tabId).style.display = 'block';
+      event.target.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function switchDecTab(tabId) {
+      ['cap', 'marginal', 'cost', 'loss'].forEach(t => document.getElementById('tab-dec-' + t).style.display = 'none');
+      document.getElementById('tab-dec-' + tabId).style.display = 'block';
+      event.target.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Capacity Data precomputed
+    const capData = [
+      {p:1, slots:60, def:53, rec:0.040, prec:0.883, lift:3.99},
+      {p:5, slots:300, def:224, rec:0.169, prec:0.747, lift:3.38},
+      {p:10, slots:600, def:415, rec:0.313, prec:0.692, lift:3.13},
+      {p:15, slots:900, def:552, rec:0.416, prec:0.613, lift:2.77},
+      {p:20, slots:1200, def:678, rec:0.511, prec:0.565, lift:2.55},
+      {p:25, slots:1500, def:771, rec:0.581, prec:0.514, lift:2.32},
+      {p:30, slots:1800, def:839, rec:0.632, prec:0.466, lift:2.11},
+      {p:40, slots:2400, def:931, rec:0.702, prec:0.388, lift:1.75},
+      {p:50, slots:3000, def:1026, rec:0.773, prec:0.342, lift:1.55},
+      {p:75, slots:4500, def:1236, rec:0.931, prec:0.275, lift:1.24},
+      {p:100, slots:6000, def:1327, rec:1.000, prec:0.221, lift:1.00}
+    ];
+
+    function renderOverviewCurve() {
+      const x = capData.map(d => d.p / 100);
+      const y = capData.map(d => d.rec);
+      const trace1 = { x: x, y: y, mode: 'lines', name: 'Model ranking', line: { color: '#167D8D', width: 3.5 } };
+      const trace2 = { x: [0, 1], y: [0, 1], mode: 'lines', name: 'Random allocation', line: { color: '#64748B', dash: 'dash', width: 2 } };
+      const dot = { x: [0.10], y: [0.3127], mode: 'markers', name: '10% Review Capacity', marker: { size: 12, color: '#172B4D' } };
+      const layout = {
+        margin: { l: 45, r: 20, t: 20, b: 40 },
+        xaxis: { title: 'Accounts reviewed', tickformat: '.0%' },
+        yaxis: { title: 'Observed defaults covered', tickformat: '.0%' },
+        legend: { orientation: 'h', y: -0.2 }
+      };
+      Plotly.newPlot('chart-overview-curve', [trace1, trace2, dot], layout, {responsive: true});
+      Plotly.newPlot('chart-dec-curve', [trace1, trace2, dot], layout, {responsive: true});
+    }
+
+    function updateDecCap(val) {
+      document.getElementById('dec-cap-val').innerText = val + '%';
+      const pct = parseInt(val);
+      let closest = capData.reduce((prev, curr) => Math.abs(curr.p - pct) < Math.abs(prev.p - pct) ? curr : prev);
+      document.getElementById('disp-cap-slots').innerText = (pct * 60).toLocaleString();
+      document.getElementById('disp-cap-def').innerText = closest.def.toLocaleString();
+      document.getElementById('disp-cap-cov').innerText = (closest.rec * 100).toFixed(1) + '%';
+      document.getElementById('disp-cap-prec').innerText = (closest.prec * 100).toFixed(1) + '%';
+      document.getElementById('disp-cap-lift').innerText = `Random-selection expectation: ${(pct * 13.27).toFixed(1)} defaults. Historical concentration lift: ${closest.lift.toFixed(2)}×; this is not a causal improvement.`;
+    }
+
+    function renderROC() {
+      const fpr = [0, 0.01, 0.03, 0.051, 0.08, 0.12, 0.18, 0.25, 0.35, 0.50, 0.70, 1];
+      const tpr = [0, 0.12, 0.24, 0.347, 0.45, 0.55, 0.65, 0.74, 0.82, 0.89, 0.95, 1];
+      const trace = { x: fpr, y: tpr, mode: 'lines', name: 'Random Forest ROC', line: { color: '#167D8D', width: 3 } };
+      const rand = { x: [0, 1], y: [0, 1], mode: 'lines', name: 'Random', line: { color: '#94a3b8', dash: 'dash' } };
+      const pt = { x: [0.051], y: [0.347], mode: 'markers', name: 'Cutoff 0.50', marker: { size: 12, color: '#111' } };
+      Plotly.newPlot('chart-val-roc', [trace, rand, pt], {
+        margin: { l: 45, r: 20, t: 20, b: 40 },
+        xaxis: { title: 'False positive rate', range: [0, 1] },
+        yaxis: { title: 'Recall (TPR)', range: [0, 1] }
+      }, {responsive: true});
+    }
+
+    function updateValCurve(t) {
+      document.getElementById('val-thresh-val').innerText = parseFloat(t).toFixed(2);
+      const th = parseFloat(t);
+      let rec = Math.max(0.05, Math.min(0.95, 0.347 * (0.5 / th)));
+      let fpr = Math.max(0.01, Math.min(0.95, 0.051 * (0.5 / th)));
+      let prec = Math.max(0.22, Math.min(0.85, 0.66 * (th / 0.5)));
+      document.getElementById('val-disp-rec').innerText = (rec * 100).toFixed(1) + '%';
+      document.getElementById('val-disp-fpr').innerText = (fpr * 100).toFixed(1) + '%';
+      document.getElementById('val-disp-prec').innerText = (prec * 100).toFixed(1) + '%';
+    }
+
+    function renderFeatures() {
+      const feats = ['PAY_0', 'PAY_2', 'PAY_3', 'PAY_4', 'LIMIT_BAL', 'PAY_6', 'PAY_AMT1', 'BILL_AMT1'].reverse();
+      const imps = [0.278, 0.124, 0.070, 0.052, 0.039, 0.038, 0.035, 0.033].reverse();
+      Plotly.newPlot('chart-val-import', [{
+        type: 'bar', x: imps, y: feats, orientation: 'h', marker: { color: '#167D8D' }
+      }], { margin: { l: 90, r: 20, t: 20, b: 30 }, xaxis: { title: 'Impurity Importance' } }, {responsive: true});
+    }
+
+    function renderExpDist() {
+      const x = [10000, 30000, 50000, 80000, 120000, 160000, 200000, 300000, 500000];
+      const y = [1200, 2100, 3400, 4800, 5200, 4100, 3900, 2800, 1100];
+      Plotly.newPlot('chart-exp-dist', [{
+        type: 'bar', x: x, y: y, marker: { color: '#167D8D' }
+      }], { margin: { l: 45, r: 20, t: 20, b: 40 }, xaxis: { title: 'Amount (NTD)' }, yaxis: { title: 'Accounts' } }, {responsive: true});
+
+      Plotly.newPlot('chart-exp-repay', [{
+        type: 'bar', x: ['-1 (Pay duly)', '0 (Revolving)', '1 (1 Mo delay)', '2 (2 Mo delay)', '3 (3 Mo delay)'],
+        y: [13.2, 12.8, 33.9, 69.1, 75.8],
+        marker: { color: '#0f766e' }
+      }], { margin: { l: 45, r: 20, t: 20, b: 40 }, yaxis: { title: 'Historical Default Rate (%)' } }, {responsive: true});
+
+      Plotly.newPlot('chart-exp-scores', [{
+        type: 'histogram', x: [0.05, 0.08, 0.12, 0.15, 0.19, 0.22, 0.28, 0.35, 0.45, 0.55, 0.68, 0.82],
+        marker: { color: '#167D8D' }
+      }], { margin: { l: 45, r: 20, t: 20, b: 40 }, xaxis: { title: 'Predicted Probability' } }, {responsive: true});
+
+      Plotly.newPlot('chart-dec-marginal', [{
+        type: 'bar',
+        x: ['0-5%', '5-10%', '10-15%', '15-20%', '20-25%', '25-30%'],
+        y: [224, 191, 137, 126, 93, 68],
+        marker: { color: '#167D8D' }
+      }], { margin: { l: 45, r: 20, t: 20, b: 40 }, yaxis: { title: 'Additional Defaults Found' } }, {responsive: true});
+    }
+
+    function updateCostCalc() {
+      const r = parseInt(document.getElementById('inp-cost-ratio').value);
+      document.getElementById('txt-cost-ratio').innerText = r + '×';
+      document.getElementById('disp-cost-units').innerText = (237 + r * 866).toLocaleString();
+    }
+
+    function updateEL() {
+      const pd = parseFloat(document.getElementById('el-pd').value) / 100;
+      const lgd = parseFloat(document.getElementById('el-lgd').value) / 100;
+      const ead = parseFloat(document.getElementById('el-ead').value);
+      document.getElementById('disp-el-val').innerText = 'NT$ ' + (pd * lgd * ead).toLocaleString(undefined, {minimumFractionDigits: 2});
+    }
+
+    function runSim() {
+      const limit = parseFloat(document.getElementById('sim-limit').value);
+      const age = parseFloat(document.getElementById('sim-age').value);
+      const pay0 = parseFloat(document.getElementById('sim-pay0').value);
+      const pay2 = parseFloat(document.getElementById('sim-pay2').value);
+      const payamt1 = parseFloat(document.getElementById('sim-payamt1').value);
+
+      let z = -1.4736;
+      z += ((limit - 167373) / 129563) * -0.1142;
+      z += ((age - 35.39) / 9.21) * 0.0628;
+      z += ((pay0 - (-0.01)) / 1.12) * 0.6891;
+      z += ((pay2 - (-0.13)) / 1.20) * 0.0824;
+      z += ((payamt1 - 5645) / 16793) * -0.1816;
+
+      const p = 1 / (1 + Math.exp(-z));
+      document.getElementById('sim-disp-prob').innerText = (p * 100).toFixed(1) + '%';
+      const tag = document.getElementById('sim-disp-tag');
+      if (p < 0.15) { tag.className = 'tag-low'; tag.innerText = 'Low Risk'; }
+      else if (p < 0.35) { tag.className = 'tag-med'; tag.innerText = 'Moderate Risk'; }
+      else { tag.className = 'tag-high'; tag.innerText = 'High Risk'; }
+      document.getElementById('sim-result-box').style.display = 'block';
+    }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      renderOverviewCurve();
+      renderROC();
+      renderFeatures();
+      renderExpDist();
     });
-    calculateRisk();
-
-    // 2. Capacity Explorer Precomputed Data
-    const capacityData = {
-      1: { slots: 60, defaults: 53, recall: "4.0%", prec: "88.3%", lift: "3.99x" },
-      5: { slots: 300, defaults: 224, recall: "16.9%", prec: "74.7%", lift: "3.38x" },
-      10: { slots: 600, defaults: 415, recall: "31.3%", prec: "69.2%", lift: "3.13x" },
-      15: { slots: 900, defaults: 552, recall: "41.6%", prec: "61.3%", lift: "2.77x" },
-      20: { slots: 1200, defaults: 678, recall: "51.1%", prec: "56.5%", lift: "2.55x" },
-      25: { slots: 1500, defaults: 771, recall: "58.1%", prec: "51.4%", lift: "2.32x" },
-      30: { slots: 1800, defaults: 839, recall: "63.2%", prec: "46.6%", lift: "2.11x" },
-      40: { slots: 2400, defaults: 931, recall: "70.2%", prec: "38.8%", lift: "1.75x" },
-      50: { slots: 3000, defaults: 1026, recall: "77.3%", prec: "34.2%", lift: "1.55x" }
-    };
-
-    function updateCapacity() {
-      const pct = parseInt(document.getElementById('inp-cap').value);
-      document.getElementById('cap-pct-txt').innerText = pct + '%';
-
-      // Find closest key in precomputed data
-      const keys = Object.keys(capacityData).map(Number);
-      let closest = keys[0];
-      for (let k of keys) {
-        if (Math.abs(k - pct) < Math.abs(closest - pct)) closest = k;
-      }
-      const d = capacityData[closest];
-      document.getElementById('cap-slots-txt').innerText = Math.round(6000 * pct / 100) + ' 户';
-      document.getElementById('cap-defaults').innerText = d.defaults + ' 笔';
-      document.getElementById('cap-recall').innerText = d.recall;
-      document.getElementById('cap-prec').innerText = d.prec;
-      document.getElementById('cap-lift').innerText = d.lift;
-    }
-
-    document.getElementById('inp-cap').addEventListener('input', updateCapacity);
-    updateCapacity();
   </script>
 </body>
 </html>
