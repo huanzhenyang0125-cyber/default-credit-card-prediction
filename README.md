@@ -307,7 +307,6 @@ default-credit-card-prediction/
 │   ├── credit_risk_research_report.md
 │   ├── final_evaluation_summary.md
 │   ├── repository_audit.md            # Leakage, schema, and reproducibility audit
-│   └── cv_project_entry.md            # Resume and interview talking points
 │
 ├── styles/
 │   └── workspace.css                  # Clean dashboard UI styling

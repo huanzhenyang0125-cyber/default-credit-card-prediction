@@ -5,6 +5,18 @@ const percent = value => value == null ? '—' : `${(100 * value).toFixed(1)}%`;
 const primary = {PAY_0: 'pay0', PAY_2: 'pay2', LIMIT_BAL: 'limit', AGE: 'age', PAY_AMT1: 'payamt'};
 const note = message => { $('status').textContent = message; };
 
+function setMenu(open) {
+  $('workspace-sidebar').hidden = !open;
+  document.querySelector('.app-frame').classList.toggle('sidebar-collapsed', !open);
+  $('menu-toggle').setAttribute('aria-expanded', String(open));
+  $('menu-toggle').querySelector('span').textContent = open ? 'Hide menu' : 'Show menu';
+  // Plotly observes container dimensions asynchronously after the sidebar changes width.
+  requestAnimationFrame(() => {
+    const chart = document.querySelector('.view-panel.active .js-plotly-plot');
+    if (chart && window.Plotly) Plotly.Plots.resize(chart);
+  });
+}
+
 function showTab(id, button) {
   document.querySelectorAll('.view-panel').forEach(el => el.classList.toggle('active', el.id === `view-${id}`));
   document.querySelectorAll('.nav-item').forEach(el => {
@@ -114,6 +126,7 @@ function updateROC() {
 }
 
 async function init() {
+  $('menu-toggle').addEventListener('click', () => setMenu($('workspace-sidebar').hidden));
   try {
     const response = await fetch('data/web_model.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);

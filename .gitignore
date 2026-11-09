@@ -16,6 +16,7 @@ data/raw/*.zip
 # Logs & temp files
 *.log
 dashboard.log
+reports/cv_project_entry.md
 .impeccable/
 .DS_Store
 Thumbs.db
